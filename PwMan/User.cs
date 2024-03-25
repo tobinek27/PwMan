@@ -1,5 +1,5 @@
 namespace PwMan;
-
+// example user folder: $"{currentPath}/user_files/<user_nickname>"
 public class User
 {
     private string nickname;
@@ -27,6 +27,33 @@ public class User
         set { password = value; }
     }
 
+    public bool HasFile()
+    {
+        string currentPath = Directory.GetCurrentDirectory();
+        string filePath = $"{currentPath}/user_files/{nickname}";
+        return File.Exists(filePath);
+    }
+
+    public bool CreateFile()
+    {
+        string currentPath = Directory.GetCurrentDirectory();
+        string filePath = $"{currentPath}/user_files/{nickname}";
+        if (!File.Exists(filePath))
+        {
+            try
+            {
+                using (File.Create(filePath)) { }
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error creating file: {e.Message}");
+            }
+        }
+
+        throw new Exception("File already exists.");
+    }
+    
     public User(string nickname, string password)
     {
         this.nickname = nickname;
