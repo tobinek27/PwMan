@@ -1,0 +1,15 @@
+/home/tobinek/RiderProjects/PwMan/PwMan/bin/Debug/net7.0/PwMan
+/home/tobinek/RiderProjects/PwMan/PwMan/bin/Debug/net7.0/PwMan.deps.json
+/home/tobinek/RiderProjects/PwMan/PwMan/bin/Debug/net7.0/PwMan.runtimeconfig.json
+/home/tobinek/RiderProjects/PwMan/PwMan/bin/Debug/net7.0/PwMan.dll
+/home/tobinek/RiderProjects/PwMan/PwMan/bin/Debug/net7.0/PwMan.pdb
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/PwMan.csproj.AssemblyReference.cache
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/PwMan.GeneratedMSBuildEditorConfig.editorconfig
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/PwMan.AssemblyInfoInputs.cache
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/PwMan.AssemblyInfo.cs
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/PwMan.csproj.CoreCompileInputs.cache
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/PwMan.dll
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/refint/PwMan.dll
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/PwMan.pdb
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/PwMan.genruntimeconfig.cache
+/home/tobinek/RiderProjects/PwMan/PwMan/obj/Debug/net7.0/ref/PwMan.dll

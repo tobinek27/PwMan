@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "MImIbpf8SlXfWSMg6jxZkYTiqHDRCvb80MjcGAJ6bUitZnheNyivOAOk6hsOI74kFZ/Ewh27VJAlKDLJRrDndQ==",
+  "success": true,
+  "projectFilePath": "/home/tobinek/RiderProjects/PwMan/PwMan/PwMan.csproj",
+  "expectedPackageFiles": [
+    "/home/tobinek/.nuget/packages/microsoft.aspnetcore.app.ref/7.0.17/microsoft.aspnetcore.app.ref.7.0.17.nupkg.sha512"
+  ],
+  "logs": []
+}
