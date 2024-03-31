@@ -36,11 +36,32 @@ class Program
         Console.WriteLine(testingPassword01);
         Console.WriteLine(testingPassword64);
         Console.WriteLine("please make a choice");
+        Console.WriteLine("1 - load user passwords");
+        Console.WriteLine("2 - sign up an account");
         int userInput = Convert.ToInt32(Console.ReadLine());
         switch (userInput)
         {
-            case 1:
-                Console.WriteLine("neco");
+            case 1: // load user passwords
+                Console.WriteLine("Please, input username:");
+                string usernameInput = Console.ReadLine();
+                if (User.HasFile(usernameInput))
+                {
+                    
+                }
+                else
+                {
+                    Console.WriteLine("AAAAAAA");
+                }
+                break;
+            case 2: // sign up a new account
+                Console.WriteLine("input a username to register");
+                string usernameToRegister = Console.ReadLine();
+                if (User.HasFile(usernameToRegister))
+                {
+                    Console.WriteLine($"sorry, but the username '{usernameToRegister}' is already taken");
+                    break;
+                }
+                
                 break;
         }
     }

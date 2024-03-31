@@ -34,6 +34,18 @@ public class User
         return File.Exists(filePath);
     }
 
+    public static bool HasFile(string inputUsername)
+    {
+        string username = inputUsername.Trim();
+        if (username.Length > 2 && username.Length < 17)
+        {
+            string filePath = $"{Directory.GetCurrentDirectory()}/user_files/{username}";
+            return File.Exists(filePath);
+        }
+        
+        return false;
+    }
+
     public bool CreateFile()
     {
         string currentPath = Directory.GetCurrentDirectory();
@@ -52,6 +64,21 @@ public class User
         }
 
         throw new Exception("File already exists.");
+    }
+
+    public static bool CreateLoginFile(string username, string password)
+    {
+        string currentPath = Directory.GetCurrentDirectory();
+        string filePath = $"{currentPath}/user_logins/{username}";
+        try
+        {
+            using (File.Create(filePath)) { }
+            return true;
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error creating file: {e.Message}");
+        }
     }
     
     public User(string nickname, string password)
