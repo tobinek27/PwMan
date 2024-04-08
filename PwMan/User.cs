@@ -1,4 +1,6 @@
 namespace PwMan;
+using System.Security.Cryptography;
+using System.Text;
 // example user folder: $"{currentPath}/user_files/<user_nickname>"
 public class User
 {
@@ -46,6 +48,18 @@ public class User
         return false;
     }
 
+    public static bool HasLoginFile(string inputUsername)
+    {
+        string username = inputUsername.Trim();
+        if (username.Length > 2 && username.Length < 17)
+        {
+            string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{username}.txt";
+            return File.Exists(filePath);
+        }
+        
+        return false;
+    }
+
     public bool CreateFile()
     {
         string currentPath = Directory.GetCurrentDirectory();
@@ -66,18 +80,26 @@ public class User
         throw new Exception("File already exists.");
     }
 
-    public static bool CreateLoginFile(string username, string password)
+    public static void CreateLoginFile(string username, string password)
     {
         string currentPath = Directory.GetCurrentDirectory();
-        string filePath = $"{currentPath}/user_logins/{username}";
+        string filePath = $"{currentPath}/user_logins/{username}.txt";
         try
         {
-            using (File.Create(filePath)) { }
-            return true;
+            // Generate salt based on the username
+            byte[] salt = GenerateSalt(username);
+
+            // Hash the password with the salt
+            string hashedPassword = HashPassword(password, salt);
+
+            // Save hashed password and salt to file
+            File.WriteAllText(filePath, $"{hashedPassword}:{Convert.ToBase64String(salt)}");
+
+            Console.WriteLine("Login file created successfully.");
         }
         catch (Exception e)
         {
-            throw new Exception($"Error creating file: {e.Message}");
+            Console.WriteLine($"Error creating file: {e.Message}");
         }
     }
     
@@ -85,5 +107,22 @@ public class User
     {
         this.nickname = nickname;
         this.password = password;
+    }
+    
+    static byte[] GenerateSalt(string username)
+    {
+        // Convert username to bytes using UTF-8 encoding
+        byte[] usernameBytes = Encoding.UTF8.GetBytes(username);
+        return usernameBytes;
+    }
+    
+    static string HashPassword(string password, byte[] salt)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            byte[] combinedBytes = Encoding.UTF8.GetBytes(password + Convert.ToBase64String(salt));
+            byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
+            return Convert.ToBase64String(hashedBytes);
+        }
     }
 }
