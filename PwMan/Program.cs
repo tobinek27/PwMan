@@ -1,4 +1,5 @@
 ﻿namespace PwMan;
+
 using System;
 using System.IO;
 using System.Text;
@@ -13,27 +14,8 @@ class Program
         Console.WriteLine(newUser.Nickname);
         Console.WriteLine(newUser.Password);
         
-        // Check if the directory doesn't exist
-        //string currentPath = Directory.GetCurrentDirectory();
-        //string folderPath = $"{currentPath}/user_files/";
-        //Console.WriteLine(currentPath);
-        //Console.WriteLine(folderPath);
-        
-        //bool test = newUser.HasFile();
-        //Console.WriteLine(test);
-        //Console.WriteLine(newUser.CreateFile());
-        /*if (!Directory.Exists(folderPath))
-        {
-            // Create the directory
-         Directory.CreateDirectory(folderPath);
-         Console.WriteLine("Folder created successfully.");
-        }
-        else
-        {
-          Console.WriteLine("Folder already exists.");
-        }*/
-        string testingPassword01 = GeneratePassword(10);
-        string testingPassword64 = GeneratePassword();
+        string testingPassword01 = PasswordMethods.GeneratePassword(10);
+        string testingPassword64 = PasswordMethods.GeneratePassword();
         Console.WriteLine(testingPassword01);
         Console.WriteLine(testingPassword64);
         Console.WriteLine("please make a choice");
@@ -53,7 +35,7 @@ class Program
                 }
                 else
                 {
-                    Console.WriteLine("AAAAAAA");
+                    Console.WriteLine("to implement");
                 }
                 break;
             case 2: // sign up a new account
@@ -66,44 +48,13 @@ class Program
                 }
                 Console.WriteLine($"input a password to be used for {usernameToRegister}");
                 string inputPassword = Console.ReadLine();
-                byte[] salt = GenerateSalt(usernameToRegister);
-                string hashedPassword = HashPassword(inputPassword, salt);
+                byte[] salt = PasswordMethods.GenerateSalt(usernameToRegister);
+                string hashedPassword = PasswordMethods.HashPassword(inputPassword, salt);
                 Console.WriteLine($"hashed password: {hashedPassword}");
                 Console.WriteLine($"salt: {Convert.ToBase64String(salt)}");
                 User.CreateLoginFile(usernameToRegister, hashedPassword);
                 break;
         }
     }
-
-    private static string GeneratePassword(int passwordLength = 64)
-    {
-        // const validCharacters contains all characters that could be used in the password generation process
-        const string validCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
-        StringBuilder password = new StringBuilder();
-        Random random = new Random();
-
-        for (int i = 0; i < passwordLength; i++)
-        {
-            password.Append(validCharacters[random.Next(validCharacters.Length)]);
-        }
-
-        return password.ToString();
-    }
     
-    static byte[] GenerateSalt(string username)
-    {
-        // Convert username to bytes using UTF-8 encoding
-        byte[] usernameBytes = Encoding.UTF8.GetBytes(username);
-        return usernameBytes;
-    }
-    
-    static string HashPassword(string password, byte[] salt)
-    {
-        using (var sha256 = SHA256.Create())
-        {
-            byte[] combinedBytes = Encoding.UTF8.GetBytes(password + Convert.ToBase64String(salt));
-            byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
-            return Convert.ToBase64String(hashedBytes);
-        }
-    }
 }
