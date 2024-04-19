@@ -9,15 +9,8 @@ class Program
 {
     public static void Main(string[] args)
     {
-        Console.WriteLine("Welcome to PwMan");
-        User newUser = new User("fawfawf", "aaaa");
-        Console.WriteLine(newUser.Username);
-        Console.WriteLine(newUser.Password);
+        Console.WriteLine("Welcome to PwMan!");
         
-        string testingPassword01 = PasswordMethods.GeneratePassword(10);
-        string testingPassword64 = PasswordMethods.GeneratePassword();
-        Console.WriteLine(testingPassword01);
-        Console.WriteLine(testingPassword64);
         Console.WriteLine("please make a choice");
         Console.WriteLine("1 - load user passwords");
         Console.WriteLine("2 - sign up an account");
