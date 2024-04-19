@@ -4,35 +4,50 @@ using System.Text;
 // example user folder: $"{currentPath}/user_files/<user_nickname>"
 public class User
 {
-    private string nickname;
-    private string password;
+    private string _username;
+    private string? _password;
+    private bool _loggedIn;
 
-    public string Nickname
+    public string Username
     {
-        get { return nickname; }
+        get => _username;
         set 
         {
             if (value.Length > 2 && value.Length < 17)
             {
-                nickname = value;
+                _username = value;
             }
             else
             {
-                throw new ArgumentException("Nickname must be longer than 2 characters and shorter than 17 characters.");
+                throw new ArgumentException("Username must be longer than 2 characters and shorter than 17 characters.");
             }
         }
     }
 
-    public string Password
+    public string? Password
     {
-        get { return password; }
-        set { password = value; }
+        get => _password;
+        set => _password = value;
     }
 
+    public bool LoggedIn
+    {
+        get => _loggedIn;
+        set => _loggedIn = value;
+    }
+
+    /*public bool Login(string password)
+    {
+        if ()
+        {
+            
+        }
+    }*/
+    
     public bool HasFile()
     {
         string currentPath = Directory.GetCurrentDirectory();
-        string filePath = $"{currentPath}/user_files/{nickname}";
+        string filePath = $"{currentPath}/user_files/{Username}";
         return File.Exists(filePath);
     }
 
@@ -48,6 +63,12 @@ public class User
         return false;
     }
 
+    public bool HasLoginFile()
+    {
+        string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{Username}.txt";
+        return File.Exists(filePath);
+    }
+    
     public static bool HasLoginFile(string inputUsername)
     {
         string username = inputUsername.Trim();
@@ -63,7 +84,7 @@ public class User
     public bool CreateFile()
     {
         string currentPath = Directory.GetCurrentDirectory();
-        string filePath = $"{currentPath}/user_files/{nickname}";
+        string filePath = $"{currentPath}/user_files/{Username}";
         if (!File.Exists(filePath))
         {
             try
@@ -103,10 +124,18 @@ public class User
         }
     }
     
-    public User(string nickname, string password)
+    public User(string username, string password)
     {
-        this.nickname = nickname;
-        this.password = password;
+        Username = username;
+        Password = password;
+        LoggedIn = false;
+    }
+
+    public User(string username)
+    {
+        Username = username;
+        Password = null;
+        LoggedIn = false;
     }
     
     static byte[] GenerateSalt(string username)

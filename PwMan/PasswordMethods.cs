@@ -35,4 +35,16 @@ public class PasswordMethods
             return Convert.ToBase64String(hashedBytes);
         }
     }
+    
+    public static bool ValidateLogin(string passwordInput, string usernameInput)
+    {
+        // hash and salt input password
+        byte[] salt = PasswordMethods.GenerateSalt(usernameInput);
+        string passwordInputHashed = PasswordMethods.HashPassword(passwordInput, salt);
+        
+        // now retrieve the user's password from user_logins
+        string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{usernameInput}.txt";
+        string readText = File.ReadAllText(filePath, Encoding.UTF8);
+        return passwordInputHashed == readText;
+    }
 }

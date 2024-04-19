@@ -11,7 +11,7 @@ class Program
     {
         Console.WriteLine("Welcome to PwMan");
         User newUser = new User("fawfawf", "aaaa");
-        Console.WriteLine(newUser.Nickname);
+        Console.WriteLine(newUser.Username);
         Console.WriteLine(newUser.Password);
         
         string testingPassword01 = PasswordMethods.GeneratePassword(10);
@@ -27,15 +27,22 @@ class Program
             case 1: // load user passwords
                 Console.WriteLine("Please, input username:");
                 string usernameInput = Console.ReadLine();
-                if (User.HasFile(usernameInput))
+                User user1 = new User(usernameInput);
+                if (user1.HasLoginFile())
                 {
                     Console.WriteLine($"Input user password for {usernameInput}: ");
-                    string passwordFromInput = Console.ReadLine();
-                    Console.WriteLine(passwordFromInput);
+                    string passwordInput = Console.ReadLine();
+                    Console.WriteLine(passwordInput);
+                    // implement a login system
+                    //
+                    Console.WriteLine(PasswordMethods.ValidateLogin(passwordInput, usernameInput));
+                    
                 }
                 else
                 {
-                    Console.WriteLine("to implement");
+                    Console.WriteLine($"your user '{usernameInput}' does not have a profile registered");
+                    Console.WriteLine("shutting down");
+                    Environment.Exit(1);
                 }
                 break;
             case 2: // sign up a new account
