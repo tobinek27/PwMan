@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "MImIbpf8SlXfWSMg6jxZkYTiqHDRCvb80MjcGAJ6bUitZnheNyivOAOk6hsOI74kFZ/Ewh27VJAlKDLJRrDndQ==",
+  "dgSpecHash": "b8HfTmbdi5lhpSzjKRzt47Xz4M2bg22oHMvx3Omkv8Emldger76BKKYgNePYaPjiqakTIt18SDvgx+IKjfbFUQ==",
   "success": true,
-  "projectFilePath": "/home/tobinek/RiderProjects/PwMan/PwMan/PwMan.csproj",
+  "projectFilePath": "C:\\Users\\tobia\\RiderProjects\\PwMan\\PwMan\\PwMan.csproj",
   "expectedPackageFiles": [
-    "/home/tobinek/.nuget/packages/microsoft.aspnetcore.app.ref/7.0.17/microsoft.aspnetcore.app.ref.7.0.17.nupkg.sha512"
+    "C:\\Users\\tobia\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
   ],
   "logs": []
 }

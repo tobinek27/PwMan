@@ -32,6 +32,7 @@ public class PasswordMethods
         {
             byte[] combinedBytes = Encoding.UTF8.GetBytes(password + Convert.ToBase64String(salt));
             byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
+            Console.WriteLine($"HashPassword method hashedBytes: {Convert.ToBase64String(hashedBytes)}");
             return Convert.ToBase64String(hashedBytes);
         }
     }
@@ -39,12 +40,29 @@ public class PasswordMethods
     public static bool ValidateLogin(string passwordInput, string usernameInput)
     {
         // hash and salt input password
-        byte[] salt = PasswordMethods.GenerateSalt(usernameInput);
-        string passwordInputHashed = PasswordMethods.HashPassword(passwordInput, salt);
+        var salt = GenerateSalt(usernameInput);
+        string passwordInputHashed = HashPassword(passwordInput, salt);
+        Console.WriteLine($"Debug ValidateLogin salt: {Convert.ToBase64String(salt)}");
+        Console.WriteLine($"Debug ValidateLogin passwordInputHashed: {passwordInputHashed}");
         
         // now retrieve the user's password from user_logins
-        string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{usernameInput}.txt";
+        string filePath = GetUserLoginFilePath(usernameInput);
         string readText = File.ReadAllText(filePath, Encoding.UTF8);
+        Console.WriteLine($"Debug ValidateLogin readText: {readText}");
+        Console.WriteLine($"Debug ValidateLogin passwordInputHashed: {passwordInputHashed}");
         return passwordInputHashed == readText;
+    }
+
+
+    public static string FetchPassword(string username)
+    {
+        string filePath = GetUserLoginFilePath(username);
+        string password = File.ReadAllText(filePath, Encoding.UTF8);
+        return password;
+    }
+    
+    public static string GetUserLoginFilePath(string username)
+    {
+        return $"{Directory.GetCurrentDirectory()}/user_logins/{username}.json";
     }
 }

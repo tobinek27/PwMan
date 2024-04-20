@@ -1,6 +1,8 @@
 namespace PwMan;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
+
 // example user folder: $"{currentPath}/user_files/<user_nickname>"
 public class User
 {
@@ -36,13 +38,20 @@ public class User
         set => _loggedIn = value;
     }
 
-    /*public bool Login(string password)
+    public bool Login(string password)
     {
-        if ()
+        try
         {
-            
+            bool loginValue = PasswordMethods.ValidateLogin(password, Username);
+            LoggedIn = loginValue;
+            Console.WriteLine($"login value: {loginValue}, loggedIn: {LoggedIn}, Username: {Username}, password: {password}");
+            return LoggedIn;
         }
-    }*/
+        catch (Exception e)
+        {
+            throw new Exception($"error logging in the user {Username}: {e.Message}");
+        }
+    }
     
     public bool HasFile()
     {
@@ -65,7 +74,7 @@ public class User
 
     public bool HasLoginFile()
     {
-        string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{Username}.txt";
+        string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{Username}.json";
         return File.Exists(filePath);
     }
     
@@ -74,7 +83,7 @@ public class User
         string username = inputUsername.Trim();
         if (username.Length > 2 && username.Length < 17)
         {
-            string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{username}.txt";
+            string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{username}.json";
             return File.Exists(filePath);
         }
         
@@ -101,14 +110,14 @@ public class User
         throw new Exception("File already exists.");
     }
 
-    public static void CreateLoginFile(string username, string password)
+    /*public static void CreateLoginFile(string username, string password)
     {
         string currentPath = Directory.GetCurrentDirectory();
         string filePath = $"{currentPath}/user_logins/{username}.txt";
         try
         {
             // Generate salt based on the username
-            byte[] salt = GenerateSalt(username);
+            byte[] salt = PasswordMethods.GenerateSalt(username);
 
             // Hash the password with the salt
             string hashedPassword = HashPassword(password, salt);
@@ -122,6 +131,27 @@ public class User
         {
             Console.WriteLine($"Error creating file: {e.Message}");
         }
+    }*/
+    
+    public static void CreateLoginFile(string username, string password, string hash, string salt)
+    {
+        string directoryPath = $"{Directory.GetCurrentDirectory()}/user_logins/";
+        Directory.CreateDirectory(directoryPath); // Create the directory if it doesn't exist
+
+        // Create a UserLogin object to store password, hash, and salt
+        HashSalt userLogin = new HashSalt
+        {
+            Password = password,
+            Hash = hash,
+            Salt = salt
+        };
+
+        // Serialize UserLogin object to JSON string
+        string json = JsonConvert.SerializeObject(userLogin);
+
+        // Write JSON string to a file named after the username
+        string filePath = Path.Combine(directoryPath, $"{username}.json");
+        File.WriteAllText(filePath, json);
     }
     
     public User(string username, string password)
@@ -138,12 +168,12 @@ public class User
         LoggedIn = false;
     }
     
-    static byte[] GenerateSalt(string username)
+    /*static byte[] GenerateSalt(string username)
     {
         // Convert username to bytes using UTF-8 encoding
         byte[] usernameBytes = Encoding.UTF8.GetBytes(username);
         return usernameBytes;
-    }
+    }*/
     
     static string HashPassword(string password, byte[] salt)
     {
