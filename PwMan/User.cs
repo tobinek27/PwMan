@@ -1,9 +1,9 @@
 namespace PwMan;
+
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 
-// example user folder: $"{currentPath}/user_files/<user_nickname>"
 public class User
 {
     private string _username;
@@ -13,7 +13,7 @@ public class User
     public string Username
     {
         get => _username;
-        set 
+        set
         {
             if (value.Length > 2 && value.Length < 17)
             {
@@ -21,7 +21,8 @@ public class User
             }
             else
             {
-                throw new ArgumentException("Username must be longer than 2 characters and shorter than 17 characters.");
+                throw new ArgumentException(
+                    "Username must be longer than 2 characters and shorter than 17 characters.");
             }
         }
     }
@@ -44,7 +45,8 @@ public class User
         {
             bool loginValue = PasswordMethods.ValidateLogin(password, Username);
             LoggedIn = loginValue;
-            Console.WriteLine($"login value: {loginValue}, loggedIn: {LoggedIn}, Username: {Username}, password: {password}");
+            Console.WriteLine(
+                $"login value: {loginValue}, loggedIn: {LoggedIn}, Username: {Username}, password: {password}");
             return LoggedIn;
         }
         catch (Exception e)
@@ -52,7 +54,7 @@ public class User
             throw new Exception($"error logging in the user {Username}: {e.Message}");
         }
     }
-    
+
     public bool HasFile()
     {
         string currentPath = Directory.GetCurrentDirectory();
@@ -68,7 +70,7 @@ public class User
             string filePath = $"{Directory.GetCurrentDirectory()}/user_files/{username}";
             return File.Exists(filePath);
         }
-        
+
         return false;
     }
 
@@ -77,7 +79,7 @@ public class User
         string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{Username}.json";
         return File.Exists(filePath);
     }
-    
+
     public static bool HasLoginFile(string inputUsername)
     {
         string username = inputUsername.Trim();
@@ -86,7 +88,7 @@ public class User
             string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{username}.json";
             return File.Exists(filePath);
         }
-        
+
         return false;
     }
 
@@ -98,7 +100,10 @@ public class User
         {
             try
             {
-                using (File.Create(filePath)) { }
+                using (File.Create(filePath))
+                {
+                }
+
                 return true;
             }
             catch (Exception e)
@@ -132,7 +137,7 @@ public class User
             Console.WriteLine($"Error creating file: {e.Message}");
         }
     }*/
-    
+
     public static void CreateLoginFile(string username, string password, string hash, string salt)
     {
         string directoryPath = $"{Directory.GetCurrentDirectory()}/user_logins/";
@@ -153,7 +158,7 @@ public class User
         string filePath = Path.Combine(directoryPath, $"{username}.json");
         File.WriteAllText(filePath, json);
     }
-    
+
     public User(string username, string password)
     {
         Username = username;
@@ -167,14 +172,14 @@ public class User
         Password = null;
         LoggedIn = false;
     }
-    
+
     /*static byte[] GenerateSalt(string username)
     {
         // Convert username to bytes using UTF-8 encoding
         byte[] usernameBytes = Encoding.UTF8.GetBytes(username);
         return usernameBytes;
     }*/
-    
+
     static string HashPassword(string password, byte[] salt)
     {
         using (var sha256 = SHA256.Create())
