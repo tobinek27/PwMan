@@ -6,16 +6,16 @@ using Newtonsoft.Json;
 
 public class User
 {
-    private string _username;
+    private string? _username;
     private string? _password;
     private bool _loggedIn;
 
-    public string Username
+    public string? Username
     {
         get => _username;
         set
         {
-            if (value.Length > 2 && value.Length < 17)
+            if (value != null && value.Length > 2 && value.Length < 17)
             {
                 _username = value;
             }
@@ -115,29 +115,6 @@ public class User
         throw new Exception("File already exists.");
     }
 
-    /*public static void CreateLoginFile(string username, string password)
-    {
-        string currentPath = Directory.GetCurrentDirectory();
-        string filePath = $"{currentPath}/user_logins/{username}.txt";
-        try
-        {
-            // Generate salt based on the username
-            byte[] salt = PasswordMethods.GenerateSalt(username);
-
-            // Hash the password with the salt
-            string hashedPassword = HashPassword(password, salt);
-
-            // Save hashed password and salt to file
-            File.WriteAllText(filePath, $"{hashedPassword}:{Convert.ToBase64String(salt)}");
-
-            Console.WriteLine("Login file created successfully.");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error creating file: {e.Message}");
-        }
-    }*/
-
     public static void CreateLoginFile(string username, string password, string hash, string salt)
     {
         string directoryPath = $"{Directory.GetCurrentDirectory()}/user_logins/";
@@ -159,6 +136,11 @@ public class User
         File.WriteAllText(filePath, json);
     }
 
+    public User()
+    {
+        
+    }
+    
     public User(string username, string password)
     {
         Username = username;
@@ -172,13 +154,6 @@ public class User
         Password = null;
         LoggedIn = false;
     }
-
-    /*static byte[] GenerateSalt(string username)
-    {
-        // Convert username to bytes using UTF-8 encoding
-        byte[] usernameBytes = Encoding.UTF8.GetBytes(username);
-        return usernameBytes;
-    }*/
 
     static string HashPassword(string password, byte[] salt)
     {

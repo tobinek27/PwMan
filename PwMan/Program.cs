@@ -6,79 +6,125 @@ using System.IO;
 class Program
 {
     public static void Main(string[] args)
-    {
-        Console.WriteLine("Welcome to PwMan!");
-        
-        Console.WriteLine("list of commands:");
-        Console.WriteLine("you can log in by typing out a username");
-        Console.WriteLine("or you can input 'register' to sign up a new user!");
-        string userInput = Console.ReadLine();
-        switch (userInput)
-        {
-            case not null when (userInput != "register" && userInput.Length > 2 && userInput.Length < 17):
-                HandleLogin(userInput);
-                break;
-            case "register": // sign up a new account
-                HandleRegistration();
-                /*Console.WriteLine("input a username to register:");
-                string usernameToRegister = Console.ReadLine();
-                if (User.HasLoginFile(usernameToRegister))
+        { 
+            User currentUser = new User();
+
+            while (true)
+            {
+                if (currentUser.LoggedIn != true)
                 {
-                    Console.WriteLine($"Sorry, but the username '{usernameToRegister}' is already taken.\r\nShutting down.");
-                    break;
+                    Console.Clear();
+                    Console.WriteLine("Welcome to PwMan!");
+                    Console.WriteLine("Enter a username to log in, or type 'register' to sign up. (Enter 'q' to quit)");
+                    Console.WriteLine("(keep in mind that usernames need to being with a letter)");
+                    string userInput = Console.ReadLine();
+
+                    if (String.IsNullOrEmpty(userInput) || !char.IsLetter(userInput[0]) || userInput.Length < 3)
+                    {
+                        Console.WriteLine("invalid input\r\nterminating...");
+                        break;
+                    }
+                    
+                    if (userInput.ToLower() == "q")
+                    {
+                        Console.WriteLine("terminating the program...");
+                        Environment.Exit(1);
+                        break;
+                    }
+                    
+                    if (!User.HasLoginFile(userInput))
+                    {
+                        HandleRegistration(userInput);
+                    }
+                    else if (User.HasLoginFile(userInput))
+                    {
+                        HandleLogin(userInput, currentUser);
+                    }
+                    else
+                    {
+                        Console.WriteLine("invalid command input, terminating...");
+                        Environment.Exit(1);
+                    }
                 }
-                Console.WriteLine($"Input a password to be used for {usernameToRegister}:");
-                string inputPassword = Console.ReadLine();
+                else
+                {
+       
+                    DisplayUserMenu(currentUser.Username);
+                    
+                    string choice = Console.ReadLine();
 
-                int saltSize1 = 16; // Choose your salt size
-                HashSalt hashSalt1 = HashSalt.GenerateSaltedHash(saltSize1, inputPassword);
-
-                // Create login file for the new user
-                User.CreateLoginFile(usernameToRegister, inputPassword, hashSalt1.Password, hashSalt1.Salt);
-                Console.WriteLine($"User '{usernameToRegister}' registered successfully.");*/
-                break;
-            default:
-                Console.WriteLine("invalid command input, terminating");
-                Environment.Exit(1);
-                break;
+                    switch (choice)
+                    {
+                        case "displaypw": // display user's saved passwords
+                            
+                            break;
+                        case "generatepw": // generate a new password
+                            Console.WriteLine("input a desired password length: (default=64)");
+                            string input = Console.ReadLine();
+                            if (string.IsNullOrEmpty(input))
+                            {
+                                string password = PasswordMethods.GeneratePassword();
+                                Console.WriteLine(password);
+                            }
+                            else if (int.TryParse(input, out int passwordLength) && passwordLength >= 16 && passwordLength <= 256)
+                            {
+                                Console.WriteLine("generating a password");
+                                string password = PasswordMethods.GeneratePassword(passwordLength);
+                                Console.WriteLine(password);
+                            }
+                            else
+                            {
+                                Console.WriteLine("invalid input provided, please enter a valid length (16-256)");
+                            }
+                            Console.WriteLine(PasswordMethods.GeneratePassword(123));
+                            break;
+                        case "logout": // logout the user
+                            currentUser.LoggedIn = false;
+                            Console.WriteLine("logged out successfully");
+                            break;
+                        case "q":
+                            Console.WriteLine("terminating the program...");
+                            Environment.Exit(1);
+                            break;
+                        default:
+                            Console.WriteLine("invalid input");
+                            break;
+                    }
+                }
+            }
         }
-    }
 
-    static void HandleLogin(string usernameInput)
+    static void HandleLogin(string usernameInput, User user)
     {
         string userInput = usernameInput.Trim();
-        User user1 = new User(userInput);
-        if (user1.HasLoginFile())
+        if (User.HasLoginFile(userInput))
         {
             Console.WriteLine($"Input user password for {userInput}: ");
             string passwordInput = Console.ReadLine();
             if (String.IsNullOrEmpty(passwordInput) || passwordInput.Length < 1)
             {
-                Console.WriteLine("password is either null, or too short!\r\nterminating");
+                Console.WriteLine("password is either null, or too short!\r\nterminating...");
                 Environment.Exit(1);
             }
         
-            // Retrieve the stored password information from the JSON file
             string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{userInput}.json";
             string json1 = File.ReadAllText(filePath);
             HashSalt storedHashSalt = HashSalt.FromJson(json1);
-        
-            // Validate the entered password against the stored hash and salt
             bool isValidPassword = HashSalt.VerifyPassword(passwordInput, storedHashSalt.Hash, storedHashSalt.Salt);
-        
-            // Output the login status
-            Console.WriteLine($"user {user1.Username} login status: {isValidPassword}");
+            Console.WriteLine($"user {user.Username} login status: {isValidPassword}");
 
             if (isValidPassword)
             {
-                user1.LoggedIn = true;
-                Console.WriteLine($"user '{user1.Username}' logged in successfully");
+                user.LoggedIn = true;
+                Console.WriteLine($"user '{user.Username}' logged in successfully");
             }
             else
             {
-                user1.LoggedIn = false;
+                user.LoggedIn = false;
                 Console.WriteLine($"invalid password {passwordInput} for user '{userInput}'");
             }
+            user.Username = userInput;
+            user.Password = passwordInput;
         }
         else
         {
@@ -88,23 +134,35 @@ class Program
         }
     }
 
-    static void HandleRegistration()
+    static void HandleRegistration(string usernameToRegister)
     {
-        Console.WriteLine("input a username to register:");
-        string usernameToRegister = Console.ReadLine();
         if (User.HasLoginFile(usernameToRegister))
         {
-            Console.WriteLine($"Sorry, but the username '{usernameToRegister}' is already taken.\r\nShutting down.");
-            Environment.Exit(1);
+            Console.WriteLine($"sorry, but the username '{usernameToRegister}' is already taken.\r\nterminating...");
+            return;
         }
-        Console.WriteLine($"Input a password to be used for {usernameToRegister}:");
+        Console.WriteLine("no user with such name detected, registering a new user...");
+        Console.WriteLine($"input a password to be used for {usernameToRegister}:");
         string inputPassword = Console.ReadLine();
 
-        int saltSize1 = 16; // Choose your salt size
-        HashSalt hashSalt1 = HashSalt.GenerateSaltedHash(saltSize1, inputPassword);
+        if (String.IsNullOrEmpty(inputPassword) || inputPassword.Length <= 3)
+        {
+            Console.WriteLine($"sorry, but the password {inputPassword} appears to be too short\r\nterminating...");
+            return;
+        }
 
-        // Create login file for the new user
+        int saltSize = 16;
+        HashSalt hashSalt1 = HashSalt.GenerateSaltedHash(saltSize, inputPassword);
         User.CreateLoginFile(usernameToRegister, inputPassword, hashSalt1.Password, hashSalt1.Salt);
-        Console.WriteLine($"User '{usernameToRegister}' registered successfully.");
+        Console.WriteLine($"user '{usernameToRegister}' registered successfully");
+    }
+
+    static void DisplayUserMenu(string username)
+    {
+        //Console.Clear();
+        Console.WriteLine("Welcome back, " + username + "!");
+        Console.WriteLine("generatepw - generate a safe password");
+        Console.WriteLine("logout - log out the current user");
+        Console.WriteLine("q - terminate the program");
     }
 }
