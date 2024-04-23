@@ -1,9 +1,7 @@
 ﻿namespace PwMan;
-
 using System;
 using System.IO;
-using System.Text;
-using System.Security.Cryptography;
+
 
 class Program
 {
@@ -11,29 +9,27 @@ class Program
     {
         Console.WriteLine("Welcome to PwMan!");
         
-        Console.WriteLine("please make a choice");
-        Console.WriteLine("1 - load user passwords");
-        Console.WriteLine("2 - sign up an account");
-        int userInput = Convert.ToInt32(Console.ReadLine());
+        Console.WriteLine("list of commands:");
+        Console.WriteLine("you can log in by typing out a username");
+        Console.WriteLine("or you can input 'register' to sign up a new user!");
+        string userInput = Console.ReadLine();
         switch (userInput)
         {
-            case 1: // load user passwords
-                Console.WriteLine("Please, input username:");
-                string usernameInput = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(usernameInput))
-                {
-                    Console.WriteLine("username can't be empty or whitespace");
-                    return;
-                }
-                usernameInput = usernameInput.Trim();
-                User user1 = new User(usernameInput);
+            case not null when (userInput != "register" && userInput.Length > 2 && userInput.Length < 17):
+                userInput = userInput.Trim();
+                User user1 = new User(userInput);
                 if (user1.HasLoginFile())
                 {
-                    Console.WriteLine($"Input user password for {usernameInput}: ");
+                    Console.WriteLine($"Input user password for {userInput}: ");
                     string passwordInput = Console.ReadLine();
+                    if (String.IsNullOrEmpty(passwordInput) || passwordInput.Length < 1)
+                    {
+                        Console.WriteLine("password is either null, or too short!\r\nterminating");
+                        break;
+                    }
         
                     // Retrieve the stored password information from the JSON file
-                    string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{usernameInput}.json";
+                    string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{userInput}.json";
                     string json1 = File.ReadAllText(filePath);
                     HashSalt storedHashSalt = HashSalt.FromJson(json1);
         
@@ -51,17 +47,17 @@ class Program
                     else
                     {
                         user1.LoggedIn = false;
-                        Console.WriteLine($"invalid password for user '{usernameInput}'");
+                        Console.WriteLine($"invalid password {passwordInput} for user '{userInput}'");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"user '{usernameInput}' does not have a profile registered");
+                    Console.WriteLine($"user '{userInput}' does not have a profile registered");
                     Console.WriteLine("shutting down");
                     Environment.Exit(1);
                 }
                 break;
-            case 2: // sign up a new account
+            case "register": // sign up a new account
                 Console.WriteLine("input a username to register:");
                 string usernameToRegister = Console.ReadLine();
                 if (User.HasLoginFile(usernameToRegister))
@@ -78,6 +74,10 @@ class Program
                 // Create login file for the new user
                 User.CreateLoginFile(usernameToRegister, inputPassword, hashSalt1.Password, hashSalt1.Salt);
                 Console.WriteLine($"User '{usernameToRegister}' registered successfully.");
+                break;
+            default:
+                Console.WriteLine("invalid command input, terminating");
+                Environment.Exit(1);
                 break;
         }
     }
