@@ -9,7 +9,6 @@ public class HashSalt
     public string Salt { get; set; }
     public string Password { get; set; }
     
-    
     public static HashSalt GenerateSaltedHash(int size, string password)
     {
         var saltBytes = new byte[size];

@@ -7,8 +7,8 @@ using Newtonsoft.Json;
 public class User
 {
     private string? _username;
-    private string? _password;
-    private bool _loggedIn;
+    public string Password { get; set; }
+    public bool LoggedIn { get; set; }
 
     public string? Username
     {
@@ -25,18 +25,6 @@ public class User
                     "Username must be longer than 2 characters and shorter than 17 characters.");
             }
         }
-    }
-
-    public string? Password
-    {
-        get => _password;
-        set => _password = value;
-    }
-
-    public bool LoggedIn
-    {
-        get => _loggedIn;
-        set => _loggedIn = value;
     }
 
     public bool Login(string password)

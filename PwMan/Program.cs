@@ -16,7 +16,7 @@ class Program
                     Console.Clear();
                     Console.WriteLine("Welcome to PwMan!");
                     Console.WriteLine("Enter a username to log in, or type 'register' to sign up. (Enter 'q' to quit)");
-                    Console.WriteLine("(keep in mind that usernames need to being with a letter)");
+                    Console.WriteLine("(keep in mind that usernames need to begin with a letter)");
                     string userInput = Console.ReadLine();
 
                     if (String.IsNullOrEmpty(userInput) || !char.IsLetter(userInput[0]) || userInput.Length < 3)
@@ -75,8 +75,22 @@ class Program
                             else
                             {
                                 Console.WriteLine("invalid input provided, please enter a valid length (16-256)");
+                                return;
                             }
-                            Console.WriteLine(PasswordMethods.GeneratePassword(123));
+                            Console.WriteLine("Do you wish to save the password?");
+                            Console.WriteLine("[y/n]");
+                            var keyInfo = Console.ReadKey();
+                            char userInput = char.ToLower(keyInfo.KeyChar);
+                            if (userInput == 'n')
+                            {
+                                Console.WriteLine("\r\nokay, I'm not going to save the password then...");
+                            }
+                            else if (userInput == 'y')
+                            {
+                                Console.WriteLine("\r\nPlease, provide me with a tag:");
+                                Console.WriteLine("(Each password is saved alongside a tag. The tag makes it easily " +
+                                                  "distinguishable from other passwords)");
+                            }
                             break;
                         case "logout": // logout the user
                             currentUser.LoggedIn = false;
