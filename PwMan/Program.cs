@@ -58,38 +58,50 @@ class Program
                         case "displaypw": // display user's saved passwords
                             
                             break;
-                        case "generatepw": // generate a new password
-                            Console.WriteLine("input a desired password length: (default=64)");
+                        case "generatepw":
+                            Console.WriteLine("Input a desired password length: (default=64)");
                             string input = Console.ReadLine();
-                            if (string.IsNullOrEmpty(input))
+                            
+                            if ((int.TryParse(input, out int passwordLength) && passwordLength <= 256) || string.IsNullOrEmpty(input))
                             {
-                                string password = PasswordMethods.GeneratePassword();
-                                Console.WriteLine(password);
-                            }
-                            else if (int.TryParse(input, out int passwordLength) && passwordLength >= 16 && passwordLength <= 256)
-                            {
-                                Console.WriteLine("generating a password");
+                                Console.WriteLine("Generating a password");
+                                if (string.IsNullOrEmpty(input))
+                                {
+                                    passwordLength = 64;
+                                }
                                 string password = PasswordMethods.GeneratePassword(passwordLength);
                                 Console.WriteLine(password);
+
+                                Console.WriteLine("Do you wish to save the password?");
+                                Console.WriteLine("[y/n]");
+                                var keyInfo = Console.ReadKey();
+                                char userInput = char.ToLower(keyInfo.KeyChar);
+                                if (userInput == 'y')
+                                {
+                                    Console.WriteLine("\r\nPlease, provide me with a tag:");
+                                    Console.WriteLine("(Each password is saved alongside a tag." +
+                                                      "The tag makes it easily distinguishable from other passwords)");
+
+                                    string tag = Console.ReadLine();
+                                    if (string.IsNullOrEmpty(tag) || tag.Length > 64)
+                                    {
+                                        Console.WriteLine($"Invalid input for tag: {tag}");
+                                        return;
+                                    }
+
+                                    // Save the password alongside the tag
+                                    Password passwordToSave = new Password(tag, password);
+                                    passwordToSave.WriteToJson(currentUser.GetPwFilePath());
+                                }
+                                else if (userInput == 'n')
+                                {
+                                    Console.WriteLine("\r\nOkay, I'm not going to save the password then...");
+                                }
                             }
                             else
                             {
-                                Console.WriteLine("invalid input provided, please enter a valid length (16-256)");
+                                Console.WriteLine("Invalid input provided, please enter a valid length (16-256)");
                                 return;
-                            }
-                            Console.WriteLine("Do you wish to save the password?");
-                            Console.WriteLine("[y/n]");
-                            var keyInfo = Console.ReadKey();
-                            char userInput = char.ToLower(keyInfo.KeyChar);
-                            if (userInput == 'n')
-                            {
-                                Console.WriteLine("\r\nokay, I'm not going to save the password then...");
-                            }
-                            else if (userInput == 'y')
-                            {
-                                Console.WriteLine("\r\nPlease, provide me with a tag:");
-                                Console.WriteLine("(Each password is saved alongside a tag. The tag makes it easily " +
-                                                  "distinguishable from other passwords)");
                             }
                             break;
                         case "logout": // logout the user
@@ -173,7 +185,6 @@ class Program
 
     static void DisplayUserMenu(string username)
     {
-        //Console.Clear();
         Console.WriteLine("Welcome back, " + username + "!");
         Console.WriteLine("generatepw - generate a safe password");
         Console.WriteLine("logout - log out the current user");

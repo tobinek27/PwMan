@@ -108,7 +108,6 @@ public class User
         string directoryPath = $"{Directory.GetCurrentDirectory()}/user_logins/";
         Directory.CreateDirectory(directoryPath); // Create the directory if it doesn't exist
 
-        // Create a UserLogin object to store password, hash, and salt
         HashSalt userLogin = new HashSalt
         {
             Password = password,
@@ -116,10 +115,8 @@ public class User
             Salt = salt
         };
 
-        // Serialize UserLogin object to JSON string
         string json = JsonConvert.SerializeObject(userLogin);
 
-        // Write JSON string to a file named after the username
         string filePath = Path.Combine(directoryPath, $"{username}.json");
         File.WriteAllText(filePath, json);
     }
@@ -142,14 +139,18 @@ public class User
         Password = null;
         LoggedIn = false;
     }
-
-    static string HashPassword(string password, byte[] salt)
+    
+    public string GetPwFilePath()
     {
-        using (var sha256 = SHA256.Create())
+        string directory = $"{Directory.GetCurrentDirectory()}/user_files/";
+        string filePath = $"{directory}{Username}.json";
+        
+        // check if the file exists, if not, creates it
+        if (!File.Exists(filePath))
         {
-            byte[] combinedBytes = Encoding.UTF8.GetBytes(password + Convert.ToBase64String(salt));
-            byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
-            return Convert.ToBase64String(hashedBytes);
+            File.Create(filePath).Close();
         }
+
+        return filePath;
     }
 }
