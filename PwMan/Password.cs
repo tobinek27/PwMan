@@ -6,7 +6,7 @@ public class Password
     public string Tag { get; set; }
     public string PasswordValue { get; set; }
     
-    public void WriteToJson(string filePath)
+    /*public void WriteToJson(string filePath)
     {
         //string json = JsonConvert.SerializeObject(this);
         JsonSerializer serializer = new JsonSerializer();
@@ -16,9 +16,23 @@ public class Password
         {
             serializer.Serialize(writer, this);
         }
+    }*/
+    
+    public void WriteToJson(string filePath) // this doesn't work yet
+    {
+        List<Password> existingData = ReadJson(filePath);
+        existingData.Add(this);
+
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.Indented
+        };
+        string jsonData = JsonConvert.SerializeObject(existingData, settings);
+        File.WriteAllText(filePath, jsonData);
     }
     
-    public List<Password> ReadJSON(string filePath)
+    public List<Password> ReadJson(string filePath)
     {
         using (StreamReader sr = new StreamReader(filePath))
         {
