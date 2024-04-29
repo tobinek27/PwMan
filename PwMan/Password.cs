@@ -6,23 +6,14 @@ public class Password
     public string Tag { get; set; }
     public string PasswordValue { get; set; }
     
-    /*public void WriteToJson(string filePath)
-    {
-        //string json = JsonConvert.SerializeObject(this);
-        JsonSerializer serializer = new JsonSerializer();
-        serializer.NullValueHandling = NullValueHandling.Ignore;
-        using (StreamWriter sw = new StreamWriter(filePath))
-        using (JsonWriter writer = new JsonTextWriter(sw))
-        {
-            serializer.Serialize(writer, this);
-        }
-    }*/
     
-    public void WriteToJson(string filePath) // this doesn't work yet
+    public void WriteToJson(string filePath)
     {
         List<Password> existingData = ReadJson(filePath);
+        // this line overrides an already existing password with a matching tag
+        existingData.RemoveAll(p => p.Tag == Tag);
         existingData.Add(this);
-
+        
         JsonSerializerSettings settings = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -34,6 +25,11 @@ public class Password
     
     public List<Password> ReadJson(string filePath)
     {
+        if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
+        {
+            return new List<Password>();
+        }
+
         using (StreamReader sr = new StreamReader(filePath))
         {
             string json = sr.ReadToEnd();
