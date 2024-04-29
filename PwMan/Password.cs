@@ -23,7 +23,7 @@ public class Password
         File.WriteAllText(filePath, jsonData);
     }
     
-    public List<Password> ReadJson(string filePath)
+    public static List<Password> ReadJson(string filePath)
     {
         if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
         {

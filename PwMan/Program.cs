@@ -52,13 +52,21 @@ class Program
                     DisplayUserMenu(currentUser.Username);
                     
                     string choice = Console.ReadLine();
-
+                    
                     switch (choice)
                     {
-                        case "displaypw": // display user's saved passwords
-                            
+                        case "display": // display user's saved passwords
+                            Console.Clear();
+                            Console.WriteLine($"fetching passwords of the user: {currentUser.Username}");
+                            List<Password> retrievedPasswords = Password.ReadJson(currentUser.GetPwFilePath());
+                            foreach (var password in retrievedPasswords)
+                            {
+                                Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+                            }
+                            Console.WriteLine("end of user's saved passwords\r\n");
                             break;
-                        case "generatepw":
+                        case "generate":
+                            Console.Clear();
                             Console.WriteLine("Input a desired password length: (default=64)");
                             string input = Console.ReadLine();
                             
@@ -105,10 +113,12 @@ class Program
                             }
                             break;
                         case "logout": // logout the user
+                            Console.Clear();
                             currentUser.LoggedIn = false;
                             Console.WriteLine("logged out successfully");
                             break;
                         case "q":
+                            Console.Clear();
                             Console.WriteLine("terminating the program...");
                             Environment.Exit(1);
                             break;
@@ -186,8 +196,9 @@ class Program
     static void DisplayUserMenu(string username)
     {
         Console.WriteLine("Welcome back, " + username + "!");
-        Console.WriteLine("generatepw - generate a safe password");
-        Console.WriteLine("logout - log out the current user");
-        Console.WriteLine("q - terminate the program");
+        Console.WriteLine("generate - generates a safe password");
+        Console.WriteLine("display - displays all passwords saved by the user");
+        Console.WriteLine("logout - logs out the current user");
+        Console.WriteLine("q - terminates the program");
     }
 }
