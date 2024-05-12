@@ -65,7 +65,7 @@ class Program
                             }
                             Console.WriteLine("end of user's saved passwords\r\n");
                             break;
-                        case "generate":
+                        case "generate": // generate a password
                             Console.Clear();
                             Console.WriteLine("Input a desired password length: (default=64)");
                             string input = Console.ReadLine();
@@ -112,17 +112,48 @@ class Program
                                 return;
                             }
                             break;
+                        case "search":
+                            Console.Clear();
+                            Console.WriteLine("Enter a tag to search for:");
+                            string searchTag = Console.ReadLine();
+
+                            if (string.IsNullOrEmpty(searchTag))
+                            {
+                                Console.WriteLine("Invalid input for tag.");
+                            }
+                            else
+                            {
+                                List<Password> passwordsOfUser = Password.ReadJson(currentUser.Username);
+                                List<Password> searchResults = Password.SearchPasswords(passwordsOfUser, searchTag);
+                                if (searchResults.Count > 0)
+                                {
+                                    Console.WriteLine($"Found {searchResults.Count} password(s) with tag '{searchTag}':");
+                                    foreach (var password in searchResults)
+                                    {
+                                        Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"No passwords found with tag '{searchTag}'.");
+                                    foreach (var i in searchResults)
+                                    {
+                                        Console.WriteLine($"aa {i}");
+                                    }
+                                }
+                            }
+                            break;
                         case "logout": // logout the user
                             Console.Clear();
                             currentUser.LoggedIn = false;
                             Console.WriteLine("logged out successfully");
                             break;
-                        case "q":
+                        case "q": // terminate the program
                             Console.Clear();
                             Console.WriteLine("terminating the program...");
                             Environment.Exit(1);
                             break;
-                        default:
+                        default: // invalid input
                             Console.WriteLine("invalid input");
                             break;
                     }
@@ -198,6 +229,7 @@ class Program
         Console.WriteLine("Welcome back, " + username + "!");
         Console.WriteLine("generate - generates a safe password");
         Console.WriteLine("display - displays all passwords saved by the user");
+        Console.WriteLine("search - searches for passwords by tag");
         Console.WriteLine("logout - logs out the current user");
         Console.WriteLine("q - terminates the program");
     }

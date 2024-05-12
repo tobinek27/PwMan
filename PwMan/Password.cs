@@ -37,6 +37,21 @@ public class Password
         }
     }
 
+    public static List<Password> SearchPasswords(List<Password> passwords, string tag)
+    {
+        List<Password> searchResults = new List<Password>();
+
+        foreach (var password in passwords)
+        {
+            if (password.Tag.Equals(tag, StringComparison.OrdinalIgnoreCase))
+            {
+                searchResults.Add(password);
+            }
+        }
+
+        return searchResults;
+    }
+    
     public Password(string tag, string passwordValue)
     {
         Tag = tag;
