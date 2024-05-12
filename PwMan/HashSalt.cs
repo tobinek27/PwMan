@@ -8,7 +8,7 @@ public class HashSalt
     public string Hash { get; set; }
     public string Salt { get; set; }
     public string Password { get; set; }
-    
+
     public static HashSalt GenerateSaltedHash(int size, string password)
     {
         var saltBytes = new byte[size];
@@ -26,7 +26,7 @@ public class HashSalt
             return hashSalt;
         }
     }
-    
+
     public string ToJson()
     {
         return JsonConvert.SerializeObject(this);
@@ -36,7 +36,7 @@ public class HashSalt
     {
         return JsonConvert.DeserializeObject<HashSalt>(json);
     }
-    
+
     public static bool VerifyPassword(string enteredPassword, string storedHash, string storedSalt)
     {
         var saltBytes = Convert.FromBase64String(storedSalt);
@@ -45,13 +45,10 @@ public class HashSalt
         {
             byte[] combinedBytes = Encoding.UTF8.GetBytes(enteredPassword + Convert.ToBase64String(saltBytes));
             byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
-    
+
             var generatedHash = Convert.ToBase64String(hashedBytes);
-    
-            Console.WriteLine($"Generated Hash: {generatedHash}");
-            Console.WriteLine($"Stored Hash: {storedHash}");
+
             return generatedHash == storedHash;
         }
     }
-
 }

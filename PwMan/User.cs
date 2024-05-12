@@ -10,7 +10,7 @@ public class User
     public string Password { get; set; }
     public bool LoggedIn { get; set; }
 
-    
+
     public string? Username
     {
         get => _username;
@@ -34,8 +34,6 @@ public class User
         {
             bool loginValue = PasswordMethods.ValidateLogin(password, Username);
             LoggedIn = loginValue;
-            Console.WriteLine(
-                $"login value: {loginValue}, loggedIn: {LoggedIn}, Username: {Username}, password: {password}");
             return LoggedIn;
         }
         catch (Exception e)
@@ -124,9 +122,8 @@ public class User
 
     public User()
     {
-        
     }
-    
+
     public User(string username, string password)
     {
         Username = username;
@@ -140,12 +137,12 @@ public class User
         Password = null;
         LoggedIn = false;
     }
-    
+
     public string GetPwFilePath()
     {
         string directory = $"{Directory.GetCurrentDirectory()}/user_files/";
         string filePath = $"{directory}{Username}.json";
-        
+
         // check if the file exists, if not, creates it
         if (!File.Exists(filePath))
         {

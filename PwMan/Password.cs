@@ -1,19 +1,20 @@
 namespace PwMan;
+
 using Newtonsoft.Json;
 
 public class Password
 {
     public string Tag { get; set; }
     public string PasswordValue { get; set; }
-    
-    
+
+
     public void WriteToJson(string filePath)
     {
         List<Password> existingData = ReadJson(filePath);
         // this line overrides an already existing password with a matching tag
         existingData.RemoveAll(p => p.Tag == Tag);
         existingData.Add(this);
-        
+
         JsonSerializerSettings settings = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -22,7 +23,7 @@ public class Password
         string jsonData = JsonConvert.SerializeObject(existingData, settings);
         File.WriteAllText(filePath, jsonData);
     }
-    
+
     public static List<Password> ReadJson(string filePath)
     {
         if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
@@ -51,7 +52,7 @@ public class Password
 
         return searchResults;
     }
-    
+
     public Password(string tag, string passwordValue)
     {
         Tag = tag;

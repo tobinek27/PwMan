@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/tobinek/RiderProjects/PwMan/PwMan/PwMan.csproj": {}
+    "C:\\Users\\tobia\\RiderProjects\\PwMan\\PwMan\\PwMan.csproj": {}
   },
   "projects": {
-    "/home/tobinek/RiderProjects/PwMan/PwMan/PwMan.csproj": {
+    "C:\\Users\\tobia\\RiderProjects\\PwMan\\PwMan\\PwMan.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/tobinek/RiderProjects/PwMan/PwMan/PwMan.csproj",
+        "projectUniqueName": "C:\\Users\\tobia\\RiderProjects\\PwMan\\PwMan\\PwMan.csproj",
         "projectName": "PwMan",
-        "projectPath": "/home/tobinek/RiderProjects/PwMan/PwMan/PwMan.csproj",
-        "packagesPath": "/home/tobinek/.nuget/packages/",
-        "outputPath": "/home/tobinek/RiderProjects/PwMan/PwMan/obj/",
+        "projectPath": "C:\\Users\\tobia\\RiderProjects\\PwMan\\PwMan\\PwMan.csproj",
+        "packagesPath": "C:\\Users\\tobia\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tobia\\RiderProjects\\PwMan\\PwMan\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/tobinek/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\tobia\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
@@ -54,18 +54,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[7.0.17, 7.0.17]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.117/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.408\\RuntimeIdentifierGraph.json"
         }
       }
     }
