@@ -15,7 +15,9 @@ class Program
             {
                 Console.Clear();
                 Console.WriteLine("Welcome to PwMan!");
-                Console.WriteLine("Enter a username to log in, or type 'register' to sign up. (Enter 'q' to quit)");
+                Console.WriteLine("Please enter a username to begin the registration process");
+                Console.WriteLine("if a user with such name already exists, you will be prompted to log in");
+                Console.WriteLine("(Enter 'q' to quit)");
                 Console.WriteLine("(keep in mind that usernames need to begin with a letter)");
                 string userInput = Console.ReadLine();
 
@@ -60,14 +62,14 @@ class Program
                         List<Password> retrievedPasswords = Password.ReadJson(currentUser.GetPwFilePath());
                         foreach (var password in retrievedPasswords)
                         {
-                            Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+                            Console.WriteLine($"tag: {password.Tag}, Password: {password.PasswordValue}");
                         }
 
                         Console.WriteLine("end of user's saved passwords\r\n");
                         break;
                     case "generate": // generate a password
                         Console.Clear();
-                        Console.WriteLine("Input a desired password length: (default=64)");
+                        Console.WriteLine("input a desired password length: (default=64)");
                         string input = Console.ReadLine();
 
                         if ((int.TryParse(input, out int passwordLength) && passwordLength <= 256) ||
@@ -86,7 +88,7 @@ class Program
                             Console.WriteLine("[y/n]");
                             var keyInfo = Console.ReadKey();
                             char userInput = char.ToLower(keyInfo.KeyChar);
-                            if (userInput == 'y')
+                            if (userInput == 'y' || keyInfo.Key == ConsoleKey.Enter)
                             {
                                 Console.WriteLine("\r\nPlease, provide me with a tag:");
                                 Console.WriteLine("(Each password is saved alongside a tag." +
@@ -95,8 +97,11 @@ class Program
                                 string tag = Console.ReadLine();
                                 if (string.IsNullOrEmpty(tag) || tag.Length > 64)
                                 {
-                                    Console.WriteLine($"Invalid input for tag: {tag}");
-                                    return;
+                                    Console.WriteLine(
+                                        $"Invalid input for tag: {tag}. The tag can't be empty or " +
+                                        $"longer than 64 chars");
+                                    //return;
+                                    break;
                                 }
 
                                 // Save the password alongside the tag
@@ -105,24 +110,24 @@ class Program
                             }
                             else if (userInput == 'n')
                             {
-                                Console.WriteLine("\r\nOkay, I'm not going to save the password then...");
+                                Console.WriteLine("\r\nokay, I'm not going to save the password then...");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Invalid input provided, please enter a valid length (16-256)");
-                            return;
+                            Console.WriteLine("invalid input provided, please enter a valid length (16-256)");
+                            //return;
                         }
 
                         break;
-                    case "search":
+                    case "search": // password lookup based on the input tag
                         Console.Clear();
-                        Console.WriteLine("Enter a tag to search for:");
+                        Console.WriteLine("enter a tag to search for:");
                         string searchTag = Console.ReadLine();
 
                         if (string.IsNullOrEmpty(searchTag))
                         {
-                            Console.WriteLine("Invalid input for tag.");
+                            Console.WriteLine("invalid input for tag.");
                         }
                         else
                         {
@@ -130,23 +135,24 @@ class Program
                             List<Password> searchResults = Password.SearchPasswords(passwordsOfUser, searchTag);
                             if (searchResults.Count > 0)
                             {
-                                Console.WriteLine($"Found {searchResults.Count} password(s) with tag '{searchTag}':");
+                                Console.WriteLine($"found {searchResults.Count} password(s) with tag '{searchTag}':");
                                 foreach (var password in searchResults)
                                 {
-                                    Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+                                    Console.WriteLine($"tag: {password.Tag}, Password: {password.PasswordValue}");
                                 }
                             }
                             else
                             {
-                                Console.WriteLine($"No passwords found with tag '{searchTag}'.");
+                                Console.WriteLine($"no passwords found with tag '{searchTag}'.");
                             }
                         }
 
                         break;
                     case "logout": // logout the user
                         Console.Clear();
+                        string recentlyLoggedOutUser = currentUser.Username;
                         currentUser.LoggedIn = false;
-                        Console.WriteLine("logged out successfully");
+                        Console.WriteLine($"user {recentlyLoggedOutUser} logged out successfully");
                         break;
                     case "q": // terminate the program
                         Console.Clear();
