@@ -120,7 +120,9 @@ class Program
                         }
 
                         break;
-                    case "search": // password lookup based on the input tag
+                    case "delete": // delete a password based on the input tag
+                        break;
+                    case "search": // search for a password based on the input tag
                         Console.Clear();
                         Console.WriteLine("enter a tag to search for:");
                         string searchTag = Console.ReadLine();
