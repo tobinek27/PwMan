@@ -122,33 +122,8 @@ class Program
                         break;
                     case "delete": // delete a password based on the input tag
                         break;
-                    case "search": // search for a password based on the input tag
-                        Console.Clear();
-                        Console.WriteLine("enter a tag to search for:");
-                        string searchTag = Console.ReadLine();
-
-                        if (string.IsNullOrEmpty(searchTag))
-                        {
-                            Console.WriteLine("invalid input for tag.");
-                        }
-                        else
-                        {
-                            List<Password> passwordsOfUser = Password.ReadJson(currentUser.GetPwFilePath());
-                            List<Password> searchResults = Password.SearchPasswords(passwordsOfUser, searchTag);
-                            if (searchResults.Count > 0)
-                            {
-                                Console.WriteLine($"found {searchResults.Count} password(s) with tag '{searchTag}':");
-                                foreach (var password in searchResults)
-                                {
-                                    Console.WriteLine($"tag: {password.Tag}, Password: {password.PasswordValue}");
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine($"no passwords found with tag '{searchTag}'.");
-                            }
-                        }
-
+                    case "search":
+                        SearchForPasswords(currentUser);
                         break;
                     case "logout": // logout the user
                         Console.Clear();
@@ -242,5 +217,39 @@ class Program
         Console.WriteLine("search - searches for passwords by tag");
         Console.WriteLine("logout - logs out the current user");
         Console.WriteLine("q - terminates the program");
+    }
+
+    static void DisplaySearchResults(List<Password> searchResults, string searchTag)
+    {
+        if (searchResults.Count > 0)
+        {
+            Console.WriteLine($"Found {searchResults.Count} password(s) with tag '{searchTag}':");
+            foreach (var password in searchResults)
+            {
+                Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"No passwords found with tag '{searchTag}'.");
+        }
+    }
+
+    static void SearchForPasswords(User currentUser)
+    {
+        Console.Clear();
+        Console.WriteLine("Enter a tag to search for:");
+        string searchTag = Console.ReadLine();
+
+        if (string.IsNullOrEmpty(searchTag))
+        {
+            Console.WriteLine("Invalid input for tag.");
+            return;
+        }
+
+        List<Password> passwordsOfUser = Password.ReadJson(currentUser.GetPwFilePath());
+        List<Password> searchResults = Password.SearchPasswords(passwordsOfUser, searchTag);
+
+        DisplaySearchResults(searchResults, searchTag);
     }
 }
