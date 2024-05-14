@@ -5,9 +5,14 @@ using System.IO;
 
 class Program
 {
+    private static string statusMessage;
+
+    public static string StatusMessage { get; set; }
+
     public static void Main(string[] args)
     {
         User currentUser = new User();
+        //string statusMessage = "";
 
         while (true)
         {
@@ -15,23 +20,26 @@ class Program
             {
                 Console.Clear();
                 Console.WriteLine("Welcome to PwMan!");
+                Console.WriteLine($"[{StatusMessage}]");
                 Console.WriteLine("Please enter a username to begin the registration process");
                 Console.WriteLine("if a user with such name already exists, you will be prompted to log in");
                 Console.WriteLine("(Enter 'q' to quit)");
                 Console.WriteLine("(keep in mind that usernames need to begin with a letter)");
                 string userInput = Console.ReadLine();
 
-                if (String.IsNullOrEmpty(userInput) || !char.IsLetter(userInput[0]) || userInput.Length <= 3)
-                {
-                    Console.WriteLine("invalid input\r\nterminating...");
-                    break;
-                }
-
                 if (userInput.ToLower() == "q")
                 {
                     Console.WriteLine("terminating the program...");
+                    Console.WriteLine(GetRandomGoodbyePhrase());
                     Environment.Exit(1);
                     break;
+                }
+
+                if (String.IsNullOrEmpty(userInput) || !char.IsLetter(userInput[0]) || userInput.Length <= 3)
+                {
+                    //Console.WriteLine($"invalid input: {userInput}\r\nplease, try again");
+                    StatusMessage = $"invalid input: {userInput}, please, try again";
+                    continue;
                 }
 
                 if (!User.HasLoginFile(userInput))
@@ -42,11 +50,11 @@ class Program
                 {
                     HandleLogin(userInput, currentUser);
                 }
-                else
+                /*else
                 {
                     Console.WriteLine("invalid command input, terminating...");
                     Environment.Exit(1);
-                }
+                }*/
             }
             else
             {
@@ -98,9 +106,8 @@ class Program
                                 if (string.IsNullOrEmpty(tag) || tag.Length > 64)
                                 {
                                     Console.WriteLine(
-                                        $"Invalid input for tag: {tag}. The tag can't be empty or " +
+                                        $"invalid input for tag: {tag}. The tag can't be empty or " +
                                         $"longer than 64 chars");
-                                    //return;
                                     break;
                                 }
 
@@ -116,29 +123,29 @@ class Program
                         else
                         {
                             Console.WriteLine("invalid input provided, please enter a valid length (16-256)");
-                            //return;
                         }
 
                         break;
                     case "delete": // delete a password based on the input tag
                         break;
-                    case "search":
+                    case "search": // search for passwords based on the input tag
                         SearchForPasswords(currentUser);
                         break;
                     case "logout": // logout the user
                         Console.Clear();
                         string recentlyLoggedOutUser = currentUser.Username;
                         currentUser.LoggedIn = false;
-                        Console.WriteLine($"user {recentlyLoggedOutUser} logged out successfully");
+                        StatusMessage = $"user {recentlyLoggedOutUser} logged out successfully";
                         break;
                     case "q": // terminate the program
                         Console.Clear();
                         Console.WriteLine("terminating the program...");
+                        Console.WriteLine(GetRandomGoodbyePhrase());
                         Environment.Exit(1);
                         break;
                     default: // invalid input
                         Console.WriteLine("invalid input");
-                        break;
+                        continue;
                 }
             }
         }
@@ -161,17 +168,16 @@ class Program
             string json1 = File.ReadAllText(filePath);
             HashSalt storedHashSalt = HashSalt.FromJson(json1);
             bool isValidPassword = HashSalt.VerifyPassword(passwordInput, storedHashSalt.Hash, storedHashSalt.Salt);
-            Console.WriteLine($"user {user.Username} login status: {isValidPassword}");
 
             if (isValidPassword)
             {
                 user.LoggedIn = true;
-                Console.WriteLine($"user '{user.Username}' logged in successfully");
+                StatusMessage = $"user {userInput} logged in successfully";
             }
             else
             {
                 user.LoggedIn = false;
-                Console.WriteLine($"invalid password {passwordInput} for user '{userInput}'");
+                StatusMessage = $"invalid password {passwordInput} for user '{userInput}'";
             }
 
             user.Username = userInput;
@@ -185,33 +191,63 @@ class Program
         }
     }
 
+    static string GetRandomGoodbyePhrase()
+    {
+        Random random = new Random();
+        string[] phrases =
+        {
+            "Catch you later!",
+            "Farewell, friend!",
+            "Until we meet again!",
+            "Adios amigo!",
+            "Bye-bye for now!",
+            "Take care and goodbye!",
+            "See you later, alligator!",
+            "In a while, crocodile!",
+            "Keep smiling, see you soon!",
+            "Goodbye, have a great day!"
+        };
+        int index = random.Next(phrases.Length);
+        return phrases[index];
+    }
+
     static void HandleRegistration(string usernameToRegister)
     {
         if (User.HasLoginFile(usernameToRegister))
         {
-            Console.WriteLine($"sorry, but the username '{usernameToRegister}' is already taken.\r\nterminating...");
+            Console.WriteLine($"Sorry, but the username '{usernameToRegister}' is already taken.");
             return;
         }
 
-        Console.WriteLine("no user with such name detected, registering a new user...");
-        Console.WriteLine($"input a password to be used for {usernameToRegister}:");
-        string inputPassword = Console.ReadLine();
-
-        if (String.IsNullOrEmpty(inputPassword) || inputPassword.Length < 3)
+        string inputPassword = "";
+        while (inputPassword.ToLower() != "q")
         {
-            Console.WriteLine($"sorry, but the password {inputPassword} appears to be too short\r\nterminating...");
+            Console.WriteLine(
+                $"input a password to be used for {usernameToRegister}: (3-256 characters, 'q' to cancel)");
+            inputPassword = Console.ReadLine();
+
+            if (inputPassword.Length < 3 || inputPassword.Length > 256)
+            {
+                Console.WriteLine("Password length should be between 3 and 256 characters.");
+                continue;
+            }
+
+            int saltSize = 16;
+            HashSalt hashSalt1 = HashSalt.GenerateSaltedHash(saltSize, inputPassword);
+            User.CreateLoginFile(usernameToRegister, inputPassword, hashSalt1.Password, hashSalt1.Salt);
+            Console.WriteLine($"User account '{usernameToRegister}' registered successfully.");
             return;
         }
 
-        int saltSize = 16;
-        HashSalt hashSalt1 = HashSalt.GenerateSaltedHash(saltSize, inputPassword);
-        User.CreateLoginFile(usernameToRegister, inputPassword, hashSalt1.Password, hashSalt1.Salt);
-        Console.WriteLine($"user '{usernameToRegister}' registered successfully");
+        Console.WriteLine("Registration canceled.");
+        StatusMessage = $"registration of user {usernameToRegister} cancelled successfully";
     }
+
 
     static void DisplayUserMenu(string username)
     {
-        Console.WriteLine("Welcome back, " + username + "!");
+        Console.WriteLine($"Welcome back, {username}!");
+        Console.WriteLine($"[{StatusMessage}]");
         Console.WriteLine("generate - generates a safe password");
         Console.WriteLine("display - displays all passwords saved by the user");
         Console.WriteLine("search - searches for passwords by tag");
@@ -223,6 +259,7 @@ class Program
     {
         if (searchResults.Count > 0)
         {
+            Console.Clear();
             Console.WriteLine($"Found {searchResults.Count} password(s) with tag '{searchTag}':");
             foreach (var password in searchResults)
             {
@@ -231,6 +268,7 @@ class Program
         }
         else
         {
+            Console.Clear();
             Console.WriteLine($"No passwords found with tag '{searchTag}'.");
         }
     }
@@ -238,18 +276,32 @@ class Program
     static void SearchForPasswords(User currentUser)
     {
         Console.Clear();
-        Console.WriteLine("Enter a tag to search for:");
-        string searchTag = Console.ReadLine();
-
-        if (string.IsNullOrEmpty(searchTag))
+        while (true)
         {
-            Console.WriteLine("Invalid input for tag.");
-            return;
+            //Console.Clear();
+            Console.WriteLine("Enter a tag to search for (type 'q' to quit):");
+            string searchTag = Console.ReadLine();
+
+            if (searchTag.ToLower() == "q")
+            {
+                Console.WriteLine("quitting search...");
+                Console.Clear();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(searchTag))
+            {
+                Console.WriteLine("invalid input for tag");
+                Console.WriteLine("press any key to continue...");
+                Console.ReadKey();
+                Console.Clear();
+                continue;
+            }
+
+            List<Password> passwordsOfUser = Password.ReadJson(currentUser.GetPwFilePath());
+            List<Password> searchResults = Password.SearchPasswords(passwordsOfUser, searchTag);
+
+            DisplaySearchResults(searchResults, searchTag);
         }
-
-        List<Password> passwordsOfUser = Password.ReadJson(currentUser.GetPwFilePath());
-        List<Password> searchResults = Password.SearchPasswords(passwordsOfUser, searchTag);
-
-        DisplaySearchResults(searchResults, searchTag);
     }
 }

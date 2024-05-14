@@ -48,8 +48,7 @@ public class PasswordMethods
         string readText = File.ReadAllText(filePath, Encoding.UTF8);
         return passwordInputHashed == readText;
     }
-
-
+    
     public static string FetchPassword(string username)
     {
         string filePath = GetUserLoginFilePath(username);
