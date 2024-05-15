@@ -1,4 +1,6 @@
-﻿namespace PwMan;
+﻿using System.Text.RegularExpressions;
+
+namespace PwMan;
 
 using System;
 using System.IO;
@@ -12,7 +14,6 @@ class Program
     public static void Main(string[] args)
     {
         User currentUser = new User();
-        //string statusMessage = "";
 
         while (true)
         {
@@ -37,7 +38,6 @@ class Program
 
                 if (String.IsNullOrEmpty(userInput) || !char.IsLetter(userInput[0]) || userInput.Length <= 3)
                 {
-                    //Console.WriteLine($"invalid input: {userInput}\r\nplease, try again");
                     StatusMessage = $"invalid input: {userInput}, please, try again";
                     continue;
                 }
@@ -55,7 +55,7 @@ class Program
                     Console.WriteLine("invalid command input, terminating...");
                     Environment.Exit(1);
                 }*/
-            } // {"Hash":"r1xQ/UeDqN2eTIuwK8g3ao5DEQg8WqMl/C4hc6N01I4=","Salt":"D4MF/oTVg/4aG49jh0k4FA==","Password":"wpierdolek"}
+            }
             else
             {
                 DisplayUserMenu(currentUser.Username);
@@ -75,12 +75,13 @@ class Program
 
                         Console.WriteLine("end of user's saved passwords\r\n");
                         break;
-                    case "generate": // generate a password
+                    /*case "generate": // generate a password
                         Console.Clear();
                         Console.WriteLine("input a desired password length: (default=64)");
                         string input = Console.ReadLine();
 
-                        if ((int.TryParse(input, out int passwordLength) && passwordLength <= 256) ||
+                        if ((int.TryParse(input, out int passwordLength) && passwordLength >= 8 &&
+                             passwordLength <= 256) ||
                             string.IsNullOrEmpty(input))
                         {
                             Console.WriteLine("Generating a password");
@@ -123,6 +124,68 @@ class Program
                         else
                         {
                             Console.WriteLine("invalid input provided, please enter a valid length (16-256)");
+                        }
+
+                        break;*/
+                    case "generate": // generate a password
+                        while (true)
+                        {
+                            Console.WriteLine("input a desired password length: (default=64) or enter 'q' to quit");
+                            string input = Console.ReadLine().Trim();
+
+                            if (input.ToLower() == "q")
+                            {
+                                // User wants to quit
+                                break;
+                            }
+
+                            if (int.TryParse(input, out int passwordLength) && passwordLength >= 8 &&
+                                passwordLength <= 256 || string.IsNullOrEmpty(input))
+                            {
+                                Console.WriteLine("Generating a password");
+                                if (string.IsNullOrEmpty(input))
+                                {
+                                    passwordLength = 64;
+                                }
+
+                                string password = PasswordMethods.GeneratePassword(passwordLength);
+                                Console.WriteLine(password);
+
+                                Console.WriteLine("Do you wish to save the password?");
+                                Console.WriteLine("[y/n]");
+                                var keyInfo = Console.ReadKey();
+                                char userInput = char.ToLower(keyInfo.KeyChar);
+                                if (userInput != 'n')
+                                {
+                                    string tag;
+                                    do
+                                    {
+                                        Console.Clear();
+                                        Console.WriteLine("'q' to exit");
+                                        Console.WriteLine("tag may contain alphanumeric characters (and a '/')");
+                                        Console.WriteLine("please enter a tag:");
+                                        tag = Console.ReadLine();
+                                    } while (!TagIsValid(tag));
+
+                                    Password passwordToSave = new Password(tag, password);
+                                    if (passwordToSave.WriteToJson(currentUser.GetPwFilePath()))
+                                    {
+                                        Console.WriteLine("Password saved successfully.");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Failed to save the password.");
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("okay, not saving the password");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("invalid password provided, please enter a valid length (8-256)");
+                            }
                         }
 
                         break;
@@ -303,5 +366,15 @@ class Program
 
             DisplaySearchResults(searchResults, searchTag);
         }
+    }
+
+    static bool TagIsValid(string tag)
+    {
+        if (string.IsNullOrEmpty(tag) || tag.Length > 64 || tag == "q")
+        {
+            return false;
+        }
+
+        return Regex.IsMatch(tag, @"^[a-zA-Z0-9/]*$");
     }
 }

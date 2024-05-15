@@ -8,7 +8,7 @@ public class Password
     public string PasswordValue { get; set; }
 
 
-    public void WriteToJson(string filePath)
+    public bool WriteToJson(string filePath)
     {
         List<Password> existingData = ReadJson(filePath);
         // this line overrides an already existing password with a matching tag
@@ -22,6 +22,7 @@ public class Password
         };
         string jsonData = JsonConvert.SerializeObject(existingData, settings);
         File.WriteAllText(filePath, jsonData);
+        return true;
     }
 
     public static List<Password> ReadJson(string filePath)
