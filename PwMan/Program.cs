@@ -102,30 +102,29 @@ class Program
                                 char userInput = char.ToLower(keyInfo.KeyChar);
                                 if (userInput != 'n')
                                 {
-                                    string tag;
-                                    do
-                                    {
-                                        Console.Clear();
-                                        Console.WriteLine("'q' to exit");
-                                        Console.WriteLine("tag may contain alphanumeric characters (and a '/')");
-                                        Console.WriteLine("please enter a tag:");
-                                        tag = Console.ReadLine();
-                                        tag = CleanseInput(tag);
-                                    } while (!TagIsValid(tag));
+                                    Console.WriteLine("okay, not saving the password");
+                                    continue;
+                                }
 
-                                    Password passwordToSave = new Password(tag, password);
-                                    if (passwordToSave.WriteToJson(currentUser.GetPwFilePath()))
-                                    {
-                                        Console.WriteLine("Password saved successfully.");
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Failed to save the password.");
-                                    }
+                                string tag;
+                                do
+                                {
+                                    Console.Clear();
+                                    Console.WriteLine("'q' to exit");
+                                    Console.WriteLine("tag may contain alphanumeric characters (and a '/')");
+                                    Console.WriteLine("please enter a tag:");
+                                    tag = Console.ReadLine();
+                                    tag = CleanseInput(tag);
+                                } while (!TagIsValid(tag));
+
+                                Password passwordToSave = new Password(tag, password);
+                                if (passwordToSave.WriteToJson(currentUser.GetPwFilePath()))
+                                {
+                                    Console.WriteLine("Password saved successfully.");
                                 }
                                 else
                                 {
-                                    Console.WriteLine("okay, not saving the password");
+                                    Console.WriteLine("Failed to save the password.");
                                 }
                             }
                             else
