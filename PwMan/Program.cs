@@ -55,7 +55,7 @@ class Program
                     Console.WriteLine("invalid command input, terminating...");
                     Environment.Exit(1);
                 }*/
-            }
+            } // {"Hash":"r1xQ/UeDqN2eTIuwK8g3ao5DEQg8WqMl/C4hc6N01I4=","Salt":"D4MF/oTVg/4aG49jh0k4FA==","Password":"wpierdolek"}
             else
             {
                 DisplayUserMenu(currentUser.Username);
@@ -234,7 +234,7 @@ class Program
 
             int saltSize = 16;
             HashSalt hashSalt1 = HashSalt.GenerateSaltedHash(saltSize, inputPassword);
-            User.CreateLoginFile(usernameToRegister, inputPassword, hashSalt1.Password, hashSalt1.Salt);
+            User.CreateLoginFile(usernameToRegister, hashSalt1.Hash, hashSalt1.Salt);
             Console.WriteLine($"User account '{usernameToRegister}' registered successfully.");
             return;
         }

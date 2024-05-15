@@ -102,18 +102,20 @@ public class User
         throw new Exception("File already exists.");
     }
 
-    public static void CreateLoginFile(string username, string password, string hash, string salt)
+    public static void CreateLoginFile(string username,/* string password, */string hash, string salt)
     {
         string directoryPath = $"{Directory.GetCurrentDirectory()}/user_logins/";
         Directory.CreateDirectory(directoryPath); // Create the directory if it doesn't exist
 
-        HashSalt userLogin = new HashSalt
+        /*HashSalt userLogin = new HashSalt
         {
             Password = password,
             Hash = hash,
             Salt = salt
-        };
+        };*/
 
+        HashSalt userLogin = HashSalt.CreateHashSalt(hash, salt);
+        
         string json = JsonConvert.SerializeObject(userLogin);
 
         string filePath = Path.Combine(directoryPath, $"{username}.json");

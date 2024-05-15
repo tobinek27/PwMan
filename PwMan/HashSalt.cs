@@ -5,9 +5,9 @@ using Newtonsoft.Json;
 
 public class HashSalt
 {
-    public string Hash { get; set; }
-    public string Salt { get; set; }
-    public string Password { get; set; }
+    public string? Hash { get; set; }
+    public string? Salt { get; set; }
+    public string? Password { get; set; }
 
 
     public static HashSalt GenerateSaltedHash(int size, string password)
@@ -23,7 +23,9 @@ public class HashSalt
             byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
             var hashedPassword = Convert.ToBase64String(hashedBytes);
 
-            HashSalt hashSalt = new HashSalt { Password = hashedPassword, Salt = salt };
+            //HashSalt hashSalt = new HashSalt { Password = hashedPassword, Salt = salt };
+            //HashSalt hashSalt = new HashSalt(hashedPassword, salt);
+            HashSalt hashSalt = CreateHashSalt(hashedPassword, salt);
             return hashSalt;
         }
     }
@@ -51,5 +53,19 @@ public class HashSalt
 
             return generatedHash == storedHash;
         }
+    }
+
+    private HashSalt()
+    {
+    }
+
+    public static HashSalt CreatePasswordSalt(string password, string salt)
+    {
+        return new HashSalt { Password = password, Salt = salt };
+    }
+
+    public static HashSalt CreateHashSalt(string hash, string salt)
+    {
+        return new HashSalt { Hash = hash, Salt = salt };
     }
 }
