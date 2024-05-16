@@ -102,24 +102,35 @@ public class User
         throw new Exception("File already exists.");
     }
 
-    public static void CreateLoginFile(string username,/* string password, */string hash, string salt)
+    public static void CreateLoginFile(string username, /* string password, */string hash, string salt)
     {
         string directoryPath = $"{Directory.GetCurrentDirectory()}/user_logins/";
         Directory.CreateDirectory(directoryPath); // Create the directory if it doesn't exist
 
-        /*HashSalt userLogin = new HashSalt
-        {
-            Password = password,
-            Hash = hash,
-            Salt = salt
-        };*/
-
         HashSalt userLogin = HashSalt.CreateHashSalt(hash, salt);
-        
+
         string json = JsonConvert.SerializeObject(userLogin);
 
         string filePath = Path.Combine(directoryPath, $"{username}.json");
         File.WriteAllText(filePath, json);
+    }
+
+    public string GetPwFilePath()
+    {
+        string directory = $"{Directory.GetCurrentDirectory()}/user_files/";
+        string filePath = $"{directory}{Username}.json";
+
+        if (!File.Exists(filePath))
+        {
+            File.Create(filePath).Close();
+        }
+
+        return filePath;
+    }
+
+    public List<Password> FetchUserPasswords()
+    {
+        return PwMan.Password.ReadJson(this.GetPwFilePath());
     }
 
     public User()
@@ -138,19 +149,5 @@ public class User
         Username = username;
         Password = null;
         LoggedIn = false;
-    }
-
-    public string GetPwFilePath()
-    {
-        string directory = $"{Directory.GetCurrentDirectory()}/user_files/";
-        string filePath = $"{directory}{Username}.json";
-
-        // check if the file exists, if not, creates it
-        if (!File.Exists(filePath))
-        {
-            File.Create(filePath).Close();
-        }
-
-        return filePath;
     }
 }

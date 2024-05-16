@@ -54,6 +54,22 @@ public class Password
         return searchResults;
     }
 
+    public static List<Password> DeletePasswordsByTag(List<Password> passwords, string tag, string filePath)
+    {
+        passwords.RemoveAll(p => p.Tag.Equals(tag, StringComparison.OrdinalIgnoreCase));
+
+        // Write the updated passwords list to the file
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.Indented
+        };
+        string jsonData = JsonConvert.SerializeObject(passwords, settings);
+        File.WriteAllText(filePath, jsonData);
+
+        return passwords;
+    }
+
     public Password(string tag, string passwordValue)
     {
         Tag = tag;
