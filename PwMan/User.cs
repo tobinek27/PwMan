@@ -2,6 +2,9 @@ namespace PwMan;
 
 using Newtonsoft.Json;
 
+/// <summary>
+/// Represents a user in the password management system.
+/// </summary>
 public class User
 {
     private string? _username;
@@ -26,6 +29,11 @@ public class User
         }
     }
 
+    /// <summary>
+    /// Checks if a login file exists for the given username.
+    /// </summary>
+    /// <param name="inputUsername">The username to check.</param>
+    /// <returns>True if a login file exists; otherwise, false.</returns>
     public static bool HasLoginFile(string inputUsername)
     {
         string username = inputUsername.Trim();
@@ -38,6 +46,11 @@ public class User
         return false;
     }
 
+    /// <summary>
+    /// Handles the login process for the user.
+    /// </summary>
+    /// <param name="usernameInput">The input username.</param>
+    /// <param name="user">The User object to handle login for.</param>
     public static void HandleLogin(string usernameInput, User user)
     {
         string userInput = Program.CleanseInput(usernameInput);
@@ -77,6 +90,10 @@ public class User
         user.Password = passwordInput;
     }
 
+    /// <summary>
+    /// Handles the registration process for a new user.
+    /// </summary>
+    /// <param name="usernameToRegister">The username to register.</param>
     public static void HandleRegistration(string usernameToRegister)
     {
         usernameToRegister = Program.CleanseInput(usernameToRegister);
@@ -112,7 +129,13 @@ public class User
         Program.StatusMessage = $"Registration of user {usernameToRegister} cancelled successfully.";
     }
 
-    public static void CreateLoginFile(string username, /* string password, */string hash, string salt)
+    /// <summary>
+    /// Creates a login file for the user.
+    /// </summary>
+    /// <param name="username">The username of the user.</param>
+    /// <param name="hash">The hashed password.</param>
+    /// <param name="salt">The salt used for hashing.</param>
+    private static void CreateLoginFile(string username, string hash, string salt)
     {
         string directoryPath = $"{Directory.GetCurrentDirectory()}/user_logins/";
         Directory.CreateDirectory(directoryPath); // Create the directory if it doesn't exist
@@ -125,6 +148,10 @@ public class User
         File.WriteAllText(filePath, json);
     }
 
+    /// <summary>
+    /// Gets the file path for the user's password file.
+    /// </summary>
+    /// <returns>The file path.</returns>
     public string GetPwFilePath()
     {
         string directory = $"{Directory.GetCurrentDirectory()}/user_files/";
@@ -138,11 +165,18 @@ public class User
         return filePath;
     }
 
+    /// <summary>
+    /// Fetches the passwords of the user.
+    /// </summary>
+    /// <returns>A list of Password objects.</returns>
     public List<Password> FetchUserPasswords()
     {
-        return PwMan.Password.ReadJson(this.GetPwFilePath());
+        return PwMan.Password.ReadJson(GetPwFilePath());
     }
 
+    /// <summary>
+    /// Displays the passwords of the user.
+    /// </summary>
     public void DisplayPasswords()
     {
         Console.Clear();
@@ -163,6 +197,9 @@ public class User
         }
     }
 
+    /// <summary>
+    /// Displays the passwords of the user for deletion.
+    /// </summary>
     public void DisplayPasswordsForDeletion()
     {
         Console.Clear();
@@ -177,10 +214,18 @@ public class User
         Program.StatusMessage = $"User passwords displayed successfully.";
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="User"/> class.
+    /// </summary>
     public User()
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="User"/> class with the specified username and password.
+    /// </summary>
+    /// <param name="username">The username of the user.</param>
+    /// <param name="password">The password of the user.</param>
     public User(string username, string password)
     {
         Username = username;
@@ -188,6 +233,10 @@ public class User
         LoggedIn = false;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="User"/> class with the specified username.
+    /// </summary>
+    /// <param name="username">The username of the user.</param>
     public User(string username)
     {
         Username = username;

@@ -2,8 +2,16 @@ namespace PwMan;
 
 using System.Text;
 
+/// <summary>
+/// Contains method(s) for password manipulation.
+/// </summary>
 public class PasswordMethods
 {
+    /// <summary>
+    /// Generates a random password with the specified length using a set of valid characters.
+    /// </summary>
+    /// <param name="passwordLength">The length of the password to generate. Default is 64.</param>
+    /// <returns>A randomly generated password as a string.</returns>
     public static string GeneratePassword(int passwordLength = 64)
     {
         // const validCharacters contains all characters that could be used in the password generation process

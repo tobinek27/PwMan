@@ -92,6 +92,10 @@ class Program
         }
     }
 
+    /// <summary>
+    /// Returns a random goodbye phrase from a predefined set of phrases.
+    /// </summary>
+    /// <returns>A random goodbye phrase as a string.</returns>
     private static string GetRandomGoodbyePhrase()
     {
         Random random = new Random();
@@ -112,6 +116,10 @@ class Program
         return phrases[index];
     }
 
+    /// <summary>
+    /// Displays the user menu with various options.
+    /// </summary>
+    /// <param name="username">The username of the current user.</param>
     private static void DisplayUserMenu(string username)
     {
         Console.WriteLine($"Welcome back, {username}!");
@@ -124,11 +132,24 @@ class Program
         Console.WriteLine("q - terminates the program");
     }
 
+    /// <summary>
+    /// Validates the given tag string to ensure it meets the required criteria.
+    /// </summary>
+    /// <param name="tag">The tag string to validate.</param>
+    /// <returns>
+    /// True if the tag is not null or empty, does not exceed 64 characters,
+    /// and contains only alphanumeric characters and forward slashes; otherwise, false.
+    /// </returns>
     public static bool TagIsValid(string tag)
     {
         return !(string.IsNullOrEmpty(tag) || tag.Length > 64) && Regex.IsMatch(tag, @"^[a-zA-Z0-9/]*$");
     }
 
+    /// <summary>
+    /// Cleanses the input string by removing excessive whitespace and trimming leading and trailing whitespace.
+    /// </summary>
+    /// <param name="input">The input string to cleanse.</param>
+    /// <returns>The cleansed input string.</returns>
     public static string CleanseInput(string input)
     {
         input = Regex.Replace(input, @"\s+", "");

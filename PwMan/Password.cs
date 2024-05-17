@@ -2,12 +2,19 @@ namespace PwMan;
 
 using Newtonsoft.Json;
 
+/// <summary>
+/// Represents a password with a tag.
+/// </summary>
 public class Password
 {
     public string Tag { get; set; }
     public string PasswordValue { get; set; }
 
-
+    /// <summary>
+    /// Writes the current password object to a JSON file.
+    /// </summary>
+    /// <param name="filePath">The file path to write to.</param>
+    /// <returns>True if the password is saved successfully; otherwise, false.</returns>
     private bool WriteToJson(string filePath)
     {
         List<Password> existingData = ReadJson(filePath);
@@ -25,6 +32,11 @@ public class Password
         return true;
     }
 
+    /// <summary>
+    /// Reads a list of passwords from a JSON file.
+    /// </summary>
+    /// <param name="filePath">The file path to read from.</param>
+    /// <returns>A list of Password objects.</returns>
     public static List<Password> ReadJson(string filePath)
     {
         if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
@@ -39,6 +51,10 @@ public class Password
         }
     }
 
+    /// <summary>
+    /// Generates a password for the current user.
+    /// </summary>
+    /// <param name="currentUser">The current user.</param>
     public static void GeneratePassword(User currentUser)
     {
         while (true)
@@ -103,6 +119,11 @@ public class Password
         }
     }
 
+    /// <summary>
+    /// Displays search results based on the provided search tag
+    /// </summary>
+    /// <param name="searchResults">List of Password objects.</param>
+    /// <param name="searchTag">Tag to use during the search.</param>
     private static void DisplaySearchResults(List<Password> searchResults, string searchTag)
     {
         if (searchResults.Count > 0)
@@ -121,6 +142,10 @@ public class Password
         Console.Clear();
     }
 
+    /// <summary>
+    /// Searches for passwords by tag and displays them.
+    /// </summary>
+    /// <param name="currentUser">The current user.</param>
     public static void SearchForPasswords(User currentUser)
     {
         Console.Clear();
@@ -139,6 +164,12 @@ public class Password
         }
     }
 
+    /// <summary>
+    /// Searches for passwords by tag.
+    /// </summary>
+    /// <param name="passwords">List of passwords.</param>
+    /// <param name="tag">Tag to use during the search.</param>
+    /// <returns>A list of Password objects.</returns>
     private static List<Password> SearchPasswords(List<Password> passwords, string tag)
     {
         List<Password> searchResults = new List<Password>();
@@ -154,6 +185,10 @@ public class Password
         return searchResults;
     }
 
+    /// <summary>
+    /// Deletes a password based on the input tag.
+    /// </summary>
+    /// <param name="currentUser">The current user.</param>
     public static void DeletePassword(User currentUser)
     {
         Console.WriteLine("Starting password deletion process...");
@@ -187,6 +222,13 @@ public class Password
         }
     }
 
+    /// <summary>
+    /// Deletes passwords based on the provided tag, and displays the updated Password list.
+    /// </summary>
+    /// <param name="passwords">List of Passwords to delete from.</param>
+    /// <param name="tag">Tag to use for the deletion process.</param>
+    /// <param name="filePath">File path to the password file.</param>
+    /// <returns>A list of updated passwords after the deletion.</returns>
     private static List<Password> DeletePasswordsByTag(List<Password> passwords, string tag, string filePath)
     {
         passwords.RemoveAll(p => p.Tag.Equals(tag, StringComparison.OrdinalIgnoreCase));
@@ -203,7 +245,12 @@ public class Password
         return passwords;
     }
 
-    public Password(string tag, string passwordValue)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Password"/> class with the specified tag and passwordValue.
+    /// </summary>
+    /// <param name="tag">Tag part of the password.</param>
+    /// <param name="passwordValue">The actual password value.</param>
+    private Password(string tag, string passwordValue)
     {
         Tag = tag;
         PasswordValue = passwordValue;
