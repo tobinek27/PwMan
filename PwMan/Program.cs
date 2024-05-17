@@ -68,30 +68,32 @@ class Program
                         GeneratePassword(currentUser);
                         break;
                     case "delete": // delete a password based on the input tag
-                        Console.WriteLine("Starting password deletion process...");
-                        string input = "";
-                        while (input != "q")
+                        DeletePassword(currentUser);
+                        break;
+                    /*Console.WriteLine("Starting password deletion process...");
+                    string input = "";
+                    while (input != "q")
+                    {
+                        List<Password> passwordList = currentUser.FetchUserPasswords();
+                        DisplayUserPasswords(currentUser);
+                        Console.WriteLine("Input the tag of a password you wish to delete ('q' to exit):");
+                        input = Console.ReadLine();
+                        input = CleanseInput(input);
+
+                        if (!passwordList.Any(p => p.Tag.Equals(input, StringComparison.OrdinalIgnoreCase)))
                         {
-                            List<Password> passwordList = currentUser.FetchUserPasswords();
-                            DisplayUserPasswords(currentUser);
-                            Console.WriteLine("Input the tag of a password you wish to delete ('q' to exit):");
-                            input = Console.ReadLine();
-                            input = CleanseInput(input);
-
-                            if (!passwordList.Any(p => p.Tag.Equals(input, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                continue; // skips onto the next iteration of the while loop without deleting anything
-                            }
-
-                            List<Password> passwordListAfterDelete =
-                                Password.DeletePasswordsByTag(passwordList, input, currentUser.GetPwFilePath());
-                            foreach (var per in passwordListAfterDelete)
-                            {
-                                Console.WriteLine($"tag: {per.Tag} password: {per.PasswordValue}");
-                            }
+                            continue; // skips onto the next iteration of the while loop without deleting anything
                         }
 
-                        break;
+                        List<Password> passwordListAfterDelete =
+                            Password.DeletePasswordsByTag(passwordList, input, currentUser.GetPwFilePath());
+                        foreach (var per in passwordListAfterDelete)
+                        {
+                            Console.WriteLine($"tag: {per.Tag} password: {per.PasswordValue}");
+                        }
+                    }
+
+                    break;*/
                     case "search": // search for passwords based on the input tag
                         SearchForPasswords(currentUser);
                         break;
@@ -308,6 +310,39 @@ class Program
         }
     }
 
+    private static void DeletePassword(User currentUser)
+    {
+        Console.WriteLine("Starting password deletion process...");
+        string input = "";
+        while (input != "q")
+        {
+            List<Password> passwordList = currentUser.FetchUserPasswords();
+            DisplayUserPasswordsForDeletion(currentUser);
+            Console.WriteLine("Input the tag of a password you wish to delete ('q' to exit):");
+            input = Console.ReadLine();
+            input = CleanseInput(input);
+
+            if (input.Equals("q", StringComparison.OrdinalIgnoreCase))
+            {
+                break; // Exit the loop if the user inputs 'q'
+            }
+
+            if (!passwordList.Any(p => p.Tag.Equals(input, StringComparison.OrdinalIgnoreCase)))
+            {
+                Console.WriteLine("No password found with the given tag.");
+                continue; // Skip to the next iteration without deleting anything
+            }
+
+            List<Password> passwordListAfterDelete =
+                Password.DeletePasswordsByTag(passwordList, input, currentUser.GetPwFilePath());
+            Console.WriteLine("Password(s) deleted successfully. Remaining passwords:");
+            foreach (var per in passwordListAfterDelete)
+            {
+                Console.WriteLine($"Tag: {per.Tag}, Password: {per.PasswordValue}");
+            }
+        }
+    }
+
     private static void SearchForPasswords(User currentUser)
     {
         Console.Clear();
@@ -327,6 +362,26 @@ class Program
     }
 
     private static void DisplayUserPasswords(User currentUser)
+    {
+        Console.Clear();
+        Console.WriteLine($"Fetching passwords of the user: {currentUser.Username}");
+        List<Password> retrievedPasswords = Password.ReadJson(currentUser.GetPwFilePath());
+        foreach (var password in retrievedPasswords)
+        {
+            Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+        }
+
+        Console.WriteLine("End of user's saved passwords\r\n");
+        StatusMessage = $"User passwords displayed successfully.";
+
+        Console.WriteLine("Press 'q' to return to the main menu.");
+        while (Console.ReadKey(true).Key != ConsoleKey.Q)
+        {
+            // Wait until 'q' is pressed
+        }
+    }
+
+    private static void DisplayUserPasswordsForDeletion(User currentUser)
     {
         Console.Clear();
         Console.WriteLine($"Fetching passwords of the user: {currentUser.Username}");
