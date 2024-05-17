@@ -34,7 +34,7 @@ class Program
                     break;
                 }
 
-                if (String.IsNullOrEmpty(userInput) || !char.IsLetter(userInput[0]) || userInput.Length <= 3)
+                if (String.IsNullOrEmpty(userInput) || !char.IsLetter(userInput[0]) || userInput.Length < 3)
                 {
                     StatusMessage = $"Invalid input: {userInput}. Please, try again.";
                     continue;

@@ -17,7 +17,7 @@ public class User
         get => _username;
         set
         {
-            if (value != null && value.Length > 2 && value.Length < 17)
+            if (value != null && value.Length >= 3 && value.Length <= 256)
             {
                 _username = value;
             }
@@ -37,7 +37,7 @@ public class User
     public static bool HasLoginFile(string inputUsername)
     {
         string username = inputUsername.Trim();
-        if (username.Length > 2 && username.Length < 17)
+        if (username.Length >= 3 && username.Length <= 256)
         {
             string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{username}.json";
             return File.Exists(filePath);
