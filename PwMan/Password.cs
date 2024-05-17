@@ -250,7 +250,7 @@ public class Password
     /// </summary>
     /// <param name="tag">Tag part of the password.</param>
     /// <param name="passwordValue">The actual password value.</param>
-    private Password(string tag, string passwordValue)
+    public Password(string tag, string passwordValue)
     {
         Tag = tag;
         PasswordValue = passwordValue;
