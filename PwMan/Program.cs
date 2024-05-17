@@ -110,6 +110,7 @@ class Program
                         break;
                     default: // invalid input
                         Console.WriteLine("Invalid input");
+                        StatusMessage = "Invalid input.";
                         continue;
                 }
             }
@@ -231,13 +232,13 @@ class Program
             foreach (var password in searchResults)
             {
                 Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+                StatusMessage = $"Found password for tag {password.Tag}.";
             }
 
             return;
         }
 
         Console.Clear();
-        Console.WriteLine($"No passwords found with tag '{searchTag}'.");
     }
 
     private static void GeneratePassword(User currentUser)
@@ -293,9 +294,12 @@ class Program
                 }
 
                 Password passwordToSave = new Password(tag, password);
-                Console.WriteLine(passwordToSave.WriteToJson(currentUser.GetPwFilePath())
+                /*Console.WriteLine(passwordToSave.WriteToJson(currentUser.GetPwFilePath())
+                    ? "Password saved successfully.", StatusMessage = $"Password saved successfully".
+                    : "Failed to save the password.");*/
+                StatusMessage = passwordToSave.WriteToJson(currentUser.GetPwFilePath())
                     ? "Password saved successfully."
-                    : "Failed to save the password.");
+                    : "Failed to save the password.";
             }
             else
             {
@@ -343,7 +347,7 @@ class Program
 
     private static string CleanseInput(string input)
     {
-        input = Regex.Replace(input, @"\s+", " ");
+        input = Regex.Replace(input, @"\s+", "");
         return input.Trim();
     }
 }
