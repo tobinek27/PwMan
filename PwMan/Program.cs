@@ -2,9 +2,6 @@
 
 namespace PwMan;
 
-using System;
-using System.IO;
-
 class Program
 {
     private static string statusMessage;
@@ -45,11 +42,11 @@ class Program
 
                 if (!User.HasLoginFile(userInput))
                 {
-                    HandleRegistration(userInput);
+                    User.HandleRegistration(userInput);
                 }
                 else if (User.HasLoginFile(userInput))
                 {
-                    HandleLogin(userInput, currentUser);
+                    User.HandleLogin(userInput, currentUser);
                 }
             }
             else
@@ -62,42 +59,18 @@ class Program
                 switch (choice)
                 {
                     case "display": // display user's saved passwords
-                        DisplayUserPasswords(currentUser);
+                        currentUser.DisplayPasswords();
                         break;
                     case "generate": // generate a password
-                        GeneratePassword(currentUser);
+                        Password.GeneratePassword(currentUser);
                         break;
                     case "delete": // delete a password based on the input tag
-                        DeletePassword(currentUser);
+                        Password.DeletePassword(currentUser);
                         break;
-                    /*Console.WriteLine("Starting password deletion process...");
-                    string input = "";
-                    while (input != "q")
-                    {
-                        List<Password> passwordList = currentUser.FetchUserPasswords();
-                        DisplayUserPasswords(currentUser);
-                        Console.WriteLine("Input the tag of a password you wish to delete ('q' to exit):");
-                        input = Console.ReadLine();
-                        input = CleanseInput(input);
-
-                        if (!passwordList.Any(p => p.Tag.Equals(input, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            continue; // skips onto the next iteration of the while loop without deleting anything
-                        }
-
-                        List<Password> passwordListAfterDelete =
-                            Password.DeletePasswordsByTag(passwordList, input, currentUser.GetPwFilePath());
-                        foreach (var per in passwordListAfterDelete)
-                        {
-                            Console.WriteLine($"tag: {per.Tag} password: {per.PasswordValue}");
-                        }
-                    }
-
-                    break;*/
                     case "search": // search for passwords based on the input tag
-                        SearchForPasswords(currentUser);
+                        Password.SearchForPasswords(currentUser);
                         break;
-                    case "logout": // logout the user
+                    case "logout": // log the user out
                         Console.Clear();
                         string recentlyLoggedOutUser = currentUser.Username;
                         currentUser.LoggedIn = false;
@@ -117,45 +90,6 @@ class Program
                 }
             }
         }
-    }
-
-    private static void HandleLogin(string usernameInput, User user)
-    {
-        string userInput = CleanseInput(usernameInput);
-
-        if (!User.HasLoginFile(userInput))
-        {
-            StatusMessage = $"User '{userInput}' does not have a profile registered.";
-            return;
-        }
-
-        Console.WriteLine($"Input user password for {userInput}: ");
-        string passwordInput = Console.ReadLine();
-        passwordInput = CleanseInput(passwordInput);
-        if (String.IsNullOrEmpty(passwordInput) || passwordInput.Length < 1)
-        {
-            StatusMessage = $"Password {passwordInput} is either null, or too short.";
-            return;
-        }
-
-        string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{userInput}.json";
-        string json1 = File.ReadAllText(filePath);
-        HashSalt storedHashSalt = HashSalt.FromJson(json1);
-        bool isValidPassword = HashSalt.VerifyPassword(passwordInput, storedHashSalt.Hash, storedHashSalt.Salt);
-
-        if (isValidPassword)
-        {
-            user.LoggedIn = true;
-            StatusMessage = $"User {userInput} logged in successfully.";
-        }
-        else
-        {
-            user.LoggedIn = false;
-            StatusMessage = $"Invalid password {passwordInput} for user '{userInput}'.";
-        }
-
-        user.Username = userInput;
-        user.Password = passwordInput;
     }
 
     private static string GetRandomGoodbyePhrase()
@@ -178,41 +112,6 @@ class Program
         return phrases[index];
     }
 
-    private static void HandleRegistration(string usernameToRegister)
-    {
-        usernameToRegister = CleanseInput(usernameToRegister);
-        if (User.HasLoginFile(usernameToRegister))
-        {
-            Console.WriteLine($"Sorry, but the username '{usernameToRegister}' is already taken");
-            StatusMessage = $"Registration failed, username '{usernameToRegister}' is already taken";
-            return;
-        }
-
-        string inputPassword = "";
-        while (inputPassword.ToLower() != "q")
-        {
-            Console.WriteLine(
-                $"Input a password to be used for {usernameToRegister}: (8-256 characters, 'q' to cancel).");
-            inputPassword = Console.ReadLine();
-            inputPassword = CleanseInput(inputPassword);
-
-            if (inputPassword.Length < 8 || inputPassword.Length > 256)
-            {
-                Console.WriteLine("Password length should be between 8 and 256 characters.");
-                continue;
-            }
-
-            int saltSize = 16;
-            HashSalt hashSalt1 = HashSalt.GenerateSaltedHash(saltSize, inputPassword);
-            User.CreateLoginFile(usernameToRegister, hashSalt1.Hash, hashSalt1.Salt);
-            StatusMessage = $"User account {usernameToRegister} created successfully.";
-            return;
-        }
-
-        Console.WriteLine("Registration cancelled.");
-        StatusMessage = $"Registration of user {usernameToRegister} cancelled successfully.";
-    }
-
     private static void DisplayUserMenu(string username)
     {
         Console.WriteLine($"Welcome back, {username}!");
@@ -225,182 +124,12 @@ class Program
         Console.WriteLine("q - terminates the program");
     }
 
-    private static void DisplaySearchResults(List<Password> searchResults, string searchTag)
-    {
-        if (searchResults.Count > 0)
-        {
-            Console.Clear();
-            Console.WriteLine($"Found {searchResults.Count} password(s) with tag '{searchTag}':");
-            foreach (var password in searchResults)
-            {
-                Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
-                StatusMessage = $"Found password for tag {password.Tag}.";
-            }
-
-            return;
-        }
-
-        Console.Clear();
-    }
-
-    private static void GeneratePassword(User currentUser)
-    {
-        while (true)
-        {
-            Console.WriteLine("Input a desired password length: (default=64) or enter 'q' to quit.");
-            string input = Console.ReadLine();
-            input = CleanseInput(input);
-
-            if (input.ToLower() == "q")
-            {
-                break;
-            }
-
-            if (int.TryParse(input, out int passwordLength) && passwordLength >= 8 &&
-                passwordLength <= 256 || string.IsNullOrEmpty(input))
-            {
-                Console.WriteLine("Generating a password...");
-                if (string.IsNullOrEmpty(input))
-                {
-                    passwordLength = 64;
-                }
-
-                string password = PasswordMethods.GeneratePassword(passwordLength);
-                Console.WriteLine(password);
-
-                Console.WriteLine("Do you wish to save the password?");
-                Console.WriteLine("[press any key to proceed, or 'n' to abort]");
-                var keyInfo = Console.ReadKey();
-                char userInput = char.ToLower(keyInfo.KeyChar);
-                if (userInput == 'n')
-                {
-                    Console.WriteLine("Okay, not saving the password.");
-                    continue;
-                }
-
-                string tag;
-                do
-                {
-                    Console.Clear();
-                    Console.WriteLine("'q' to exit");
-                    Console.WriteLine("Tag may contain alphanumeric characters (and a '/')");
-                    Console.WriteLine("Please enter a tag:");
-                    tag = Console.ReadLine().Trim();
-
-                    tag = CleanseInput(tag);
-                } while (!TagIsValid(tag));
-
-                if (tag == "q")
-                {
-                    break;
-                }
-
-                Password passwordToSave = new Password(tag, password);
-                /*Console.WriteLine(passwordToSave.WriteToJson(currentUser.GetPwFilePath())
-                    ? "Password saved successfully.", StatusMessage = $"Password saved successfully".
-                    : "Failed to save the password.");*/
-                StatusMessage = passwordToSave.WriteToJson(currentUser.GetPwFilePath())
-                    ? "Password saved successfully."
-                    : "Failed to save the password.";
-            }
-            else
-            {
-                Console.WriteLine("Invalid password provided, please enter a valid length (8-256).");
-            }
-        }
-    }
-
-    private static void DeletePassword(User currentUser)
-    {
-        Console.WriteLine("Starting password deletion process...");
-        string input = "";
-        while (input != "q")
-        {
-            List<Password> passwordList = currentUser.FetchUserPasswords();
-            DisplayUserPasswordsForDeletion(currentUser);
-            Console.WriteLine("Input the tag of a password you wish to delete ('q' to exit):");
-            input = Console.ReadLine();
-            input = CleanseInput(input);
-
-            if (input.Equals("q", StringComparison.OrdinalIgnoreCase))
-            {
-                break; // Exit the loop if the user inputs 'q'
-            }
-
-            if (!passwordList.Any(p => p.Tag.Equals(input, StringComparison.OrdinalIgnoreCase)))
-            {
-                Console.WriteLine("No password found with the given tag.");
-                continue; // Skip to the next iteration without deleting anything
-            }
-
-            List<Password> passwordListAfterDelete =
-                Password.DeletePasswordsByTag(passwordList, input, currentUser.GetPwFilePath());
-            Console.WriteLine("Password(s) deleted successfully. Remaining passwords:");
-            foreach (var per in passwordListAfterDelete)
-            {
-                Console.WriteLine($"Tag: {per.Tag}, Password: {per.PasswordValue}");
-            }
-        }
-    }
-
-    private static void SearchForPasswords(User currentUser)
-    {
-        Console.Clear();
-        string searchTag = "";
-        while (searchTag.ToLower() != "q")
-        {
-            Console.WriteLine("Enter a tag to search for (type 'q' to quit):");
-            searchTag = Console.ReadLine();
-            searchTag = CleanseInput(searchTag);
-
-            List<Password>
-                passwordsOfUser = currentUser.FetchUserPasswords(); //Password.ReadJson(currentUser.GetPwFilePath());
-            List<Password> searchResults = Password.SearchPasswords(passwordsOfUser, searchTag);
-
-            DisplaySearchResults(searchResults, searchTag);
-        }
-    }
-
-    private static void DisplayUserPasswords(User currentUser)
-    {
-        Console.Clear();
-        Console.WriteLine($"Fetching passwords of the user: {currentUser.Username}");
-        List<Password> retrievedPasswords = Password.ReadJson(currentUser.GetPwFilePath());
-        foreach (var password in retrievedPasswords)
-        {
-            Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
-        }
-
-        Console.WriteLine("End of user's saved passwords\r\n");
-        StatusMessage = $"User passwords displayed successfully.";
-
-        Console.WriteLine("Press 'q' to return to the main menu.");
-        while (Console.ReadKey(true).Key != ConsoleKey.Q)
-        {
-            // Wait until 'q' is pressed
-        }
-    }
-
-    private static void DisplayUserPasswordsForDeletion(User currentUser)
-    {
-        Console.Clear();
-        Console.WriteLine($"Fetching passwords of the user: {currentUser.Username}");
-        List<Password> retrievedPasswords = Password.ReadJson(currentUser.GetPwFilePath());
-        foreach (var password in retrievedPasswords)
-        {
-            Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
-        }
-
-        Console.WriteLine("End of user's saved passwords\r\n");
-        StatusMessage = $"User passwords displayed successfully.";
-    }
-
-    private static bool TagIsValid(string tag)
+    public static bool TagIsValid(string tag)
     {
         return !(string.IsNullOrEmpty(tag) || tag.Length > 64) && Regex.IsMatch(tag, @"^[a-zA-Z0-9/]*$");
     }
 
-    private static string CleanseInput(string input)
+    public static string CleanseInput(string input)
     {
         input = Regex.Replace(input, @"\s+", "");
         return input.Trim();

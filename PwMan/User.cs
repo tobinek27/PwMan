@@ -1,7 +1,5 @@
 namespace PwMan;
 
-using System.Security.Cryptography;
-using System.Text;
 using Newtonsoft.Json;
 
 public class User
@@ -28,45 +26,6 @@ public class User
         }
     }
 
-    public bool Login(string password)
-    {
-        try
-        {
-            bool loginValue = PasswordMethods.ValidateLogin(password, Username);
-            LoggedIn = loginValue;
-            return LoggedIn;
-        }
-        catch (Exception e)
-        {
-            throw new Exception($"error logging in the user {Username}: {e.Message}");
-        }
-    }
-
-    public bool HasFile()
-    {
-        string currentPath = Directory.GetCurrentDirectory();
-        string filePath = $"{currentPath}/user_files/{Username}";
-        return File.Exists(filePath);
-    }
-
-    public static bool HasFile(string inputUsername)
-    {
-        string username = inputUsername.Trim();
-        if (username.Length > 2 && username.Length < 17)
-        {
-            string filePath = $"{Directory.GetCurrentDirectory()}/user_files/{username}";
-            return File.Exists(filePath);
-        }
-
-        return false;
-    }
-
-    public bool HasLoginFile()
-    {
-        string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{Username}.json";
-        return File.Exists(filePath);
-    }
-
     public static bool HasLoginFile(string inputUsername)
     {
         string username = inputUsername.Trim();
@@ -79,27 +38,78 @@ public class User
         return false;
     }
 
-    public bool CreateFile()
+    public static void HandleLogin(string usernameInput, User user)
     {
-        string currentPath = Directory.GetCurrentDirectory();
-        string filePath = $"{currentPath}/user_files/{Username}";
-        if (!File.Exists(filePath))
-        {
-            try
-            {
-                using (File.Create(filePath))
-                {
-                }
+        string userInput = Program.CleanseInput(usernameInput);
 
-                return true;
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error creating file: {e.Message}");
-            }
+        if (!HasLoginFile(userInput))
+        {
+            Program.StatusMessage = $"User '{userInput}' does not have a profile registered.";
+            return;
         }
 
-        throw new Exception("File already exists.");
+        Console.WriteLine($"Input user password for {userInput}: ");
+        string passwordInput = Console.ReadLine();
+        passwordInput = Program.CleanseInput(passwordInput);
+        if (String.IsNullOrEmpty(passwordInput) || passwordInput.Length < 1)
+        {
+            Program.StatusMessage = $"Password {passwordInput} is either null, or too short.";
+            return;
+        }
+
+        string filePath = $"{Directory.GetCurrentDirectory()}/user_logins/{userInput}.json";
+        string json1 = File.ReadAllText(filePath);
+        HashSalt storedHashSalt = HashSalt.FromJson(json1);
+        bool isValidPassword = HashSalt.VerifyPassword(passwordInput, storedHashSalt.Hash, storedHashSalt.Salt);
+
+        if (isValidPassword)
+        {
+            user.LoggedIn = true;
+            Program.StatusMessage = $"User {userInput} logged in successfully.";
+        }
+        else
+        {
+            user.LoggedIn = false;
+            Program.StatusMessage = $"Invalid password {passwordInput} for user '{userInput}'.";
+        }
+
+        user.Username = userInput;
+        user.Password = passwordInput;
+    }
+
+    public static void HandleRegistration(string usernameToRegister)
+    {
+        usernameToRegister = Program.CleanseInput(usernameToRegister);
+        if (HasLoginFile(usernameToRegister))
+        {
+            Console.WriteLine($"Sorry, but the username '{usernameToRegister}' is already taken");
+            Program.StatusMessage = $"Registration failed, username '{usernameToRegister}' is already taken";
+            return;
+        }
+
+        string inputPassword = "";
+        while (inputPassword.ToLower() != "q")
+        {
+            Console.WriteLine(
+                $"Input a password to be used for {usernameToRegister}: (8-256 characters, 'q' to cancel).");
+            inputPassword = Console.ReadLine();
+            inputPassword = Program.CleanseInput(inputPassword);
+
+            if (inputPassword.Length < 8 || inputPassword.Length > 256)
+            {
+                Console.WriteLine("Password length should be between 8 and 256 characters.");
+                continue;
+            }
+
+            int saltSize = 16;
+            HashSalt hashSalt1 = HashSalt.GenerateSaltedHash(saltSize, inputPassword);
+            CreateLoginFile(usernameToRegister, hashSalt1.Hash, hashSalt1.Salt);
+            Program.StatusMessage = $"User account {usernameToRegister} created successfully.";
+            return;
+        }
+
+        Console.WriteLine("Registration cancelled.");
+        Program.StatusMessage = $"Registration of user {usernameToRegister} cancelled successfully.";
     }
 
     public static void CreateLoginFile(string username, /* string password, */string hash, string salt)
@@ -131,6 +141,40 @@ public class User
     public List<Password> FetchUserPasswords()
     {
         return PwMan.Password.ReadJson(this.GetPwFilePath());
+    }
+
+    public void DisplayPasswords()
+    {
+        Console.Clear();
+        Console.WriteLine($"Fetching passwords of the user: {Username}");
+        List<Password> retrievedPasswords = PwMan.Password.ReadJson(this.GetPwFilePath());
+        foreach (var password in retrievedPasswords)
+        {
+            Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+        }
+
+        Console.WriteLine("End of user's saved passwords\r\n");
+        Program.StatusMessage = $"User passwords displayed successfully.";
+
+        Console.WriteLine("Press 'q' to return to the main menu.");
+        while (Console.ReadKey(true).Key != ConsoleKey.Q)
+        {
+            // wait until 'q' is pressed
+        }
+    }
+
+    public void DisplayPasswordsForDeletion()
+    {
+        Console.Clear();
+        Console.WriteLine($"Fetching passwords of the user: {Username}");
+        List<Password> retrievedPasswords = PwMan.Password.ReadJson(GetPwFilePath());
+        foreach (var password in retrievedPasswords)
+        {
+            Console.WriteLine($"Tag: {password.Tag}, Password: {password.PasswordValue}");
+        }
+
+        Console.WriteLine("End of user's saved passwords\r\n");
+        Program.StatusMessage = $"User passwords displayed successfully.";
     }
 
     public User()

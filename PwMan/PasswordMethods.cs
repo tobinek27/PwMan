@@ -1,7 +1,6 @@
 namespace PwMan;
 
 using System.Text;
-using System.Security.Cryptography;
 
 public class PasswordMethods
 {
@@ -18,46 +17,5 @@ public class PasswordMethods
         }
 
         return password.ToString();
-    }
-
-    public static byte[] GenerateSalt(string username)
-    {
-        // Convert username to bytes using UTF-8 encoding
-        byte[] usernameBytes = Encoding.UTF8.GetBytes(username);
-        return usernameBytes;
-    }
-
-    public static string HashPassword(string password, byte[] salt)
-    {
-        using (var sha256 = SHA256.Create())
-        {
-            byte[] combinedBytes = Encoding.UTF8.GetBytes(password + Convert.ToBase64String(salt));
-            byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
-            return Convert.ToBase64String(hashedBytes);
-        }
-    }
-
-    public static bool ValidateLogin(string passwordInput, string usernameInput)
-    {
-        // hash and salt input password
-        var salt = GenerateSalt(usernameInput);
-        string passwordInputHashed = HashPassword(passwordInput, salt);
-
-        // now retrieve the user's password from user_logins
-        string filePath = GetUserLoginFilePath(usernameInput);
-        string readText = File.ReadAllText(filePath, Encoding.UTF8);
-        return passwordInputHashed == readText;
-    }
-
-    public static string FetchPassword(string username)
-    {
-        string filePath = GetUserLoginFilePath(username);
-        string password = File.ReadAllText(filePath, Encoding.UTF8);
-        return password;
-    }
-
-    public static string GetUserLoginFilePath(string username)
-    {
-        return $"{Directory.GetCurrentDirectory()}/user_logins/{username}.json";
     }
 }

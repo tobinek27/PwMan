@@ -1,4 +1,3 @@
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
@@ -23,16 +22,9 @@ public class HashSalt
             byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
             var hashedPassword = Convert.ToBase64String(hashedBytes);
 
-            //HashSalt hashSalt = new HashSalt { Password = hashedPassword, Salt = salt };
-            //HashSalt hashSalt = new HashSalt(hashedPassword, salt);
             HashSalt hashSalt = CreateHashSalt(hashedPassword, salt);
             return hashSalt;
         }
-    }
-
-    public string ToJson()
-    {
-        return JsonConvert.SerializeObject(this);
     }
 
     public static HashSalt FromJson(string json)
@@ -57,11 +49,6 @@ public class HashSalt
 
     private HashSalt()
     {
-    }
-
-    public static HashSalt CreatePasswordSalt(string password, string salt)
-    {
-        return new HashSalt { Password = password, Salt = salt };
     }
 
     public static HashSalt CreateHashSalt(string hash, string salt)
